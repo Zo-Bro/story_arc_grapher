@@ -1,0 +1,50 @@
+DEBUG:PyQt5.uic.uiparser:UI version is 4.0
+DEBUG:PyQt5.uic.uiparser:uiname is MainWindow
+DEBUG:PyQt5.uic.uiparser:toplevel widget is QMainWindow
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property windowTitle
+DEBUG:PyQt5.uic.uiparser:push QMainWindow MainWindow
+DEBUG:PyQt5.uic.uiparser:push QWidget centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton loadBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton loadBtn
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton newBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton newBtn
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton saveBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton saveBtn
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit plainTextEdit
+DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit plainTextEdit
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit plainTextEdit_2
+DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit plainTextEdit_2
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QLabel label
+DEBUG:PyQt5.uic.uiparser:pop widget QLabel label
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.uiparser:push QListWidget listWidget
+DEBUG:PyQt5.uic.uiparser:pop widget QListWidget listWidget
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.uiparser:pop widget QWidget centralwidget
+DEBUG:PyQt5.uic.uiparser:new topwidget MainWindow
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.uiparser:push QMenuBar menubar
+DEBUG:PyQt5.uic.uiparser:pop widget QMenuBar menubar
+DEBUG:PyQt5.uic.uiparser:new topwidget MainWindow
+DEBUG:PyQt5.uic.uiparser:push QStatusBar statusbar
+DEBUG:PyQt5.uic.uiparser:pop widget QStatusBar statusbar
+DEBUG:PyQt5.uic.uiparser:new topwidget MainWindow
+DEBUG:PyQt5.uic.uiparser:pop widget QMainWindow MainWindow
+DEBUG:PyQt5.uic.uiparser:new topwidget None

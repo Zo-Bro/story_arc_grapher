@@ -1,0 +1,30 @@
+{
+"story":{
+			"template":false,
+			"name":"test story",
+			"uuid":"123-123-123",
+			"color_theme":[1,1,1],
+			"save_dir":"path\\to\\save\\file.json",
+			"scale_dict":{},
+			"characters":[
+							{
+							"name":"Bob",
+							"uuid":"123-123-123",
+							"profile-pic":".\\relative\\path.jpg",
+							"character_sheet":".\\relative\\path.json",
+							"beats":[
+										{
+										"x":1,
+										"scales":[3,6,4],
+										"notes_list":["asd", "bnm", "tyu"],
+										},
+										{
+										"x":2,
+										"scales":[0,0,0],
+										"notes_list":["","",""],
+										}
+									]
+							},
+						]
+		}
+}
