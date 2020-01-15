@@ -44,18 +44,39 @@ class Controller(object):
         self.view.loadBtn.clicked.connect(self.load_data)
         self.view.newBtn.clicked.connect(self.new)
         self.view.saveBtn.clicked.connect(self.save_data)
-
-        #load the ui file
+        self.view.newCharBtn.clicked.connect(self.add_character)
         pass
 
-    def add_character(self, name, age, *args, **kwargs):
+    def add_character(self):
+        '''
+        How the heck do I wait for this window to close?
+        - can use QDialog plus exec() perhaps
+        Problem:
+        Opening the new character window does not stop controller from finishing its code.
+        '''
+
+        new_char_data = self.view.add_character_window()
+        #prep returned data for model.
         self.model.add_character(name, age, gender, **kwargs)
 
     def new(self):
-        self.model.start_up()
-        return
+        '''
+        handles new project request. will always ask to save unsaved changes
+        '''
+        if self.model.is_dirty:
+            result = self.save_prompt()
+        if result == QtWidgets.QMessageBox.Save:
+            self.save_data()
+        elif result == QtWidgets.QMessageBox.Cancel:
+            return
+        else:
+            self.model.start_up()
+            return
 
     def save_prompt(self):
+        '''
+        convenience function for displaying a save prompt
+        '''
         save_prompt = QtWidgets.QMessageBox()
         save_prompt.setText("Story Project has unsaved changes.")
         save_prompt.setInformativeText("Save before closing?")
@@ -64,6 +85,9 @@ class Controller(object):
         return save_prompt.exec()
 
     def message_box(self, title='', message='', icon=''):
+        '''
+        convenience function for displaying a yes/no message window
+        '''
         icons = {
         'information':QtWidgets.QMessageBox.Information,
         'question':QtWidgets.QMessageBox.Question,
@@ -84,11 +108,13 @@ class Controller(object):
         if self.model.is_dirty:
             # pop up warning and ask if you'd like to save project
             save_prompt_result = self.save_prompt()
-            print(save_prompt_result)
+            if save_prompt_result == QtWidgets.QMessageBox.Save:
+                self.save_data()
+            else:
+                pass
 
         else:
             pass
-
         save_dir = self.view.load_window()
         if type(save_dir) == str:
             self.model.load_data(save_dir)
@@ -100,8 +126,10 @@ class Controller(object):
             self.message_box(title="Load File is not Valid", message="The path provided is not a valid Story Arc save file. Please try a different path", icon='warning')
 
     def save_data(self):
+        #if a save location has been established, save there.
         if self.model.data['save_dir']:
             self.model.save_data()
+        #else, ask where to save and set that as the new save dir
         else:
             save_dir = self.view.save_as_window()
             if save_dir:
@@ -117,7 +145,9 @@ class Controller(object):
         scale_list = self.view.new_entry_window()
         self.model.add_entry(character_uuid, scale_list)
 
-
+class window_loop(QtCore.QEventLoop):
+    def __init__(self):
+        pass
 
 '''
 Program Flow:

@@ -43,6 +43,7 @@ class Story_Object(object):
                                     "scale_dict":{},
                                     "characters":[],
         }
+        self.start_up()
 
 
 
@@ -67,6 +68,7 @@ class Story_Object(object):
         load json data for an entire story object.
         '''
         self.data = json.loads(save_dir)
+        self.save_dir = save_dir
         self.is_dirty = False
             
     def save_data(self, save_dir=None):
@@ -77,16 +79,24 @@ class Story_Object(object):
         # if a save path was provided, save there
         if save_dir:
             logging.info("new save path provided. Writing to new location")
-            json.dumps(self.data)
+            self.data['save_dir'] = save_dir
+            json_data = json.dumps(self.data, indent=4)
+
+            with open(save_dir, 'w') as dest_file:
+                dest_file.write(json_data)
             self.is_dirty = False
-            self.save_dir = save_dir
+            self.save_dir = self.data['save_dir']
         # if no save path was provided and this Story doesnt have a save path yet
         elif self.save_dir is None:
             logger.warning("no save path provided and story object has no existing save path")
         # Overwrite current project
         else:
             logging.warning("overwriting existing save file.")
-            json.dumps(self.save_dir)
+            json_data = json.dumps(self.data, indent=4)
+            with open(self.save_dir, 'w') as dest_file:
+                dest_file.write(json_data)
+
+
             self.is_dirty = False
 
     def add_character(self, name, **kwargs):
