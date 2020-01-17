@@ -2,7 +2,8 @@
 # use graphing abilities to observe their changes overtime, and how their changes interact
 '''
 Turn this into a Video Game Narrative Design Tool:
-This could eventually be useful in videogame design by adding parameters for production time projections, creating possible asset sheets, and other game-relevant info.
+This could eventually be useful in videogame design by adding parameters for production time projections,
+creating possible asset sheets, and other game-relevant info.
 '''
 
 
@@ -99,14 +100,14 @@ class Story_Object(object):
 
             self.is_dirty = False
 
-    def add_character(self, name, **kwargs):
+    def add_character(self, data=None):
         '''
         JSON data is stored as a dict in python, so I should store each character's data as a dict as well.
         This means that my characters most likely dont need to be a Class object.
         '''
-        new_character = Character_Object(name, UUID(), kwargs)
-        #JSON is a dict in python, so add this character to the python dict in the characters section
-        self.data['characters'].append(new_character)
+        new_character = Character_Object(data)
+        # JSON is a dict in python, so add this character to the python dict in the characters section
+        self.data['characters'].append(new_character.get_data())
         self.is_dirty = True
         return
 
@@ -143,7 +144,7 @@ class Entry_Object(object):
                                     "scales":[],
                                     "notes":[],
         }
-        self.data = empty_entry_object
+        self.data = {}
         self.data["x"] = x
         self.data["scale_list"] = scale_list
         self.data["notes_list"] = notes_list 
@@ -158,19 +159,31 @@ class Character_Object(object):
 
     #action: does the character complete something? who does this action impact?
     #event: does something happen to this character? who causes it?
-    def __init__(self, name, uuid, profile_pic, entries, **kwargs):
-        self.data = {
-                                        "name":"",
-                                        "uuid":"",
-                                        "profile_pic":"",
-                                        "character_sheet":"",
-                                        "entries":[]
-        }
-        self.data["name"] = name
-        self.data["uuid"] = uuid
-        self.data["profile_pic"] = profile_pic
-        for key, value in kwargs.iterItems():
-            self.data[key] = value
+    def __init__(self, data):
+        self.__data = {}
+        if "uuid" not in data:
+            self.__data["uuid"] = UUID()
+        for key, value in data.items():
+            self.__data[key] = value
+
+    def get_data(self):
+        return self.__data
+
+    def set_data(self, key = str, value=None):
+        if key in self.__data:
+            if type(self.__data[key]) == type(value):
+                self.__data[key] = value
+            else:
+                raise TypeError("expected a {0}, value was instead a {1}".format(str(type(self.__data)), str(type(value))))
+        else:
+            raise KeyError("key does not exist in dict. Use add_data instead.")
+
+    def add_data(self, key=str, value=None):
+        if key in self.__data:
+            raise KeyError("key already exists. cannot add.")
+        elif value is not None:
+            self.__data[key] = value
+
 
 def UUID():
     temp_uuid = uuid.uuid1()

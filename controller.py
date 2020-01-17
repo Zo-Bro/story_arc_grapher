@@ -14,7 +14,7 @@ import sys
 import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSlot
 
 import view
 import model
@@ -26,13 +26,15 @@ rational_level_list = ['logical', 'thoughtful', 'neutral', 'irrational', 'idioti
 caution_level_list = ['reckless', 'confident', 'neutral', 'reserved', 'risk averse']
 entries = []
 
-logging.basicConfig(filename='log.log', filemode='w', level=logging.INFO)
+logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG)
 
-class Controller(object):
+class Controller(QtCore.QObject):
     def __init__(self, model, view):
         '''        
         ? Do I need to make a new instance of the Model when I load a different file?
         '''
+        QtCore.QObject.__init__(self)
+
         self.model = model
         self.view = view
         self.connect_signals()
@@ -44,20 +46,29 @@ class Controller(object):
         self.view.loadBtn.clicked.connect(self.load_data)
         self.view.newBtn.clicked.connect(self.new)
         self.view.saveBtn.clicked.connect(self.save_data)
-        self.view.newCharBtn.clicked.connect(self.add_character)
+        self.view.newCharBtn.clicked.connect(self.add_character_view)
         pass
 
-    def add_character(self):
+    def add_character_view(self):
         '''
         How the heck do I wait for this window to close?
         - can use QDialog plus exec() perhaps
         Problem:
         Opening the new character window does not stop controller from finishing its code.
         '''
+        if hasattr(self.view, 'char_window'):
+            self.view.char_window.show()
+        else:
+            self.view.add_character_window()
+            
+    def add_character_model(self, data):
+        print("inside add_character_model(). var is".format(str(type(data))))
+        self.model.add_character(data)
+        self.view.char_window.close()
 
-        new_char_data = self.view.add_character_window()
-        #prep returned data for model.
-        self.model.add_character(name, age, gender, **kwargs)
+    def cancel(self):
+        print("canceled")
+        self.view.char_window.close()
 
     def new(self):
         '''
@@ -145,10 +156,6 @@ class Controller(object):
         scale_list = self.view.new_entry_window()
         self.model.add_entry(character_uuid, scale_list)
 
-class window_loop(QtCore.QEventLoop):
-    def __init__(self):
-        pass
-
 '''
 Program Flow:
 
@@ -161,5 +168,6 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     Controller = Controller(model = model.Story_Object(), view = view.View())
     Controller.model.start_up()
+    Controller.view.set_controller(Controller)
     Controller.view.show()
     app.exec_()

@@ -13,7 +13,7 @@ import uuid
 import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog
 import pyqtgraph as pyqtgraph
 
@@ -46,6 +46,8 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         
 
+    def set_controller(self, controller):
+        self.controller = controller
 
     def new(self):
         '''
@@ -111,15 +113,20 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
         '''
-        char_loop = QtCore.QEventLoop()
-        window = AddCharacterView()
-        window.finished.connect(char_loop.quit)
-        print("test one two")
-        char_loop.exec_()
-        if window.cancel:
-            return
-        else:
-            return window.data
+        # char_loop = QtCore.QEventLoop()
+        self.char_window = AddCharacterView(self)
+        self.char_window.send_character_data.connect(self.controller.add_character_model)
+        self.char_window.canceled.connect(self.controller.cancel)
+        self.char_window.show()
+
+        # window.finished.connect(char_loop.quit)
+        # print("test one two")
+        # char_loop.exec_()
+        # if window.cancel:
+        #     return
+        # else:
+        #     return window.data
+        return self.char_window
 
     def save_as_window(self):
         print("saved!")
@@ -143,25 +150,28 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         pass
 
 class AddCharacterView(QtWidgets.QWidget, Ui_AddCharacterWindow):
+        
+        send_character_data = pyqtSignal(dict)
+        canceled = pyqtSignal()
+
         def __init__(self, view=None):
-            QtWidgets.QMainWindow.__init__(self)
+            QtWidgets.QWidget.__init__(self)
             Ui_AddCharacterWindow.__init__(self)
-            self.setWindowModality(QtCore.Qt.ApplicationModal)
             self.setupUi(self)
             self.view = view
-            self.char_data = {}
-            self.cancel = False
+            self.connect_signals()
 
         def connect_signals(self):
             self.addBtn.clicked.connect(self.create_character)
             self.cancelBtn.clicked.connect(self.cancel)
 
         def create_character(self):
-            self.data['name']= self.nameLineEdit.getText()
-            self.data['age'] = self.ageLineEdit.getText()
-            self.data['desc'] = self.descTextEdit.getText()
-
-            pass
+            self.data = {}
+            self.data['name']= self.nameLineEdit.text()
+            self.data['age'] = self.ageLineEdit.text()
+            self.data['desc'] = self.descTextEdit.toPlainText()
+            self.send_character_data.emit(self.data)
+            print("set point")
 
         def cancel(self):
-            self.cancel = True
+            self.canceled.emit()
