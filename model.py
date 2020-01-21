@@ -100,11 +100,17 @@ class Story_Object(object):
 
             self.is_dirty = False
 
-    def add_character(self, data=None):
+    def add_or_edit_character(self, data=None):
         '''
         JSON data is stored as a dict in python, so I should store each character's data as a dict as well.
         This means that my characters most likely dont need to be a Class object.
         '''
+        for char in self.data['characters']:
+            if data.uid == char['uuid']:
+                for key, value in data:
+                    char.set_data(key=key, value=value)
+                return
+
         new_character = Character_Object(data)
         # JSON is a dict in python, so add this character to the python dict in the characters section
         self.data['characters'].append(new_character.get_data())
@@ -172,7 +178,11 @@ class Character_Object(object):
     def set_data(self, key = str, value=None):
         if key in self.__data:
             if type(self.__data[key]) == type(value):
-                self.__data[key] = value
+                if self.__data[key] == value:
+                    #no need to reset if it is already the same
+                    return
+                else:
+                    self.__data[key] = value
             else:
                 raise TypeError("expected a {0}, value was instead a {1}".format(str(type(self.__data)), str(type(value))))
         else:

@@ -33,7 +33,7 @@ class Controller(object):
         self.view = view
 
     def add_character(self, name, age, *args, **kwargs):
-        self.model.add_character(name, age, gender, **kwargs)
+        self.model.add_or_edit_character(name, age, gender, **kwargs)
 
     def load_data(self, save_path):
         self.view.clear()

@@ -34,7 +34,6 @@ class Controller(QtCore.QObject):
         ? Do I need to make a new instance of the Model when I load a different file?
         '''
         QtCore.QObject.__init__(self)
-
         self.model = model
         self.view = view
         self.connect_signals()
@@ -47,28 +46,63 @@ class Controller(QtCore.QObject):
         self.view.newBtn.clicked.connect(self.new)
         self.view.saveBtn.clicked.connect(self.save_data)
         self.view.newCharBtn.clicked.connect(self.add_character_view)
+        self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
         pass
 
     def add_character_view(self):
         '''
-        How the heck do I wait for this window to close?
-        - can use QDialog plus exec() perhaps
-        Problem:
-        Opening the new character window does not stop controller from finishing its code.
+
         '''
         if hasattr(self.view, 'char_window'):
             self.view.char_window.show()
         else:
             self.view.add_character_window()
             
-    def add_character_model(self, data):
-        print("inside add_character_model(). var is".format(str(type(data))))
-        self.model.add_character(data)
+    def add_or_edit_character_model(self, data):
+        self.model.add_or_edit_character(data)
         self.view.char_window.close()
+        self.refresh_view()
 
     def cancel(self):
         print("canceled")
         self.view.char_window.close()
+
+    def refresh_view(self):
+        '''
+        update the view with new information
+
+        '''
+        for x in range(0, self.view.characterList.count()):
+            self.view.characterList.takeItem(x)
+        name_list = []
+        for item in self.model.data['characters']:
+            name_list.append((item['name'], item['uuid']))
+        sorted_name_list = sorted(name_list, key=lambda x: x[0])
+        for name_uuid in sorted_name_list:
+            temp_widget = view.CharListWidgetItem(name_uuid[0], uuid=name_uuid[1])
+            self.view.characterList.addItem(temp_widget)
+        #self.view.refresh_view(self.model.data)
+
+        pass
+
+    def request_char_by_uuid(self):
+        '''
+        TODO:
+        - Currently I am iterating over the data multiple times,
+        first in teh controller and then in the view. I want to only do it once
+        Implementing MVC is getting to be more complicated than I expected.
+        '''
+        if self.view.characterList.count() > 0:
+            temp_widget = self.view.characterList.currentItem()
+            for char_data in self.model.data['characters']:
+                if char_data['uuid'] == temp_widget.uuid:
+                    self.view.add_character_window(data=char_data)
+                    return
+            #handle the error if someone with that uuid cannot be found: delete the entry in the listWidget.
+        else:
+            return
+
+
 
     def new(self):
         '''
@@ -76,10 +110,10 @@ class Controller(QtCore.QObject):
         '''
         if self.model.is_dirty:
             result = self.save_prompt()
-        if result == QtWidgets.QMessageBox.Save:
-            self.save_data()
-        elif result == QtWidgets.QMessageBox.Cancel:
-            return
+            if result == QtWidgets.QMessageBox.Save:
+                self.save_data()
+            elif result == QtWidgets.QMessageBox.Cancel:
+                return
         else:
             self.model.start_up()
             return

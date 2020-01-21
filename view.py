@@ -28,8 +28,11 @@ logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG)
 
 ui_file = "mainwindow.ui"
 add_char_ui_file = "add_character_window.ui"
+edit_char_ui_file = "character_details_window.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(ui_file)
 Ui_AddCharacterWindow, QtBaseClass = uic.loadUiType(add_char_ui_file)
+Ui_EditCharacterWindow, QtBaseClass = uic.loadUiType(edit_char_ui_file)
+
 class View(QtWidgets.QMainWindow, Ui_MainWindow):
     '''
     App Name: Storiograph
@@ -64,6 +67,21 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         '''
         the standard view of the first character and one scale, if either exist
         '''
+        pass
+
+    def refresh_view(self, data):
+        '''
+        refresh all widgets with up to date information
+
+        '''
+        self.refresh_character_view(data)
+        self.refresh_beat_view(data)
+        pass
+
+    def refresh_character_view(self, data):
+        pass
+
+    def refresh_beat_view(self, data):
         pass
 
     def graph_styling(self, grid_x=True, grid_y=True, **kwargs):
@@ -106,26 +124,26 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
     def new_scale_window(self):
         pass
 
-    def add_character_window(self):
+    def character_details_window(self, character):
         '''
-        load a pop up window that lets you enter new character information
-        returns all the entered information
-
+        show character details/ allow editing.
 
         '''
-        # char_loop = QtCore.QEventLoop()
-        self.char_window = AddCharacterView(self)
-        self.char_window.send_character_data.connect(self.controller.add_character_model)
+
+    def add_character_window(self, data=None):
+        '''
+        load a pop up window that lets you edit a character or add a new one,
+         depending on if you passed in data or not
+        returns the window object.
+        '''
+        if data:
+            self.char_window = EditCharacterView(view = self, data=data)
+        else:
+            self.char_window = AddCharacterView(view = self)
+
+        self.char_window.send_character_data.connect(self.controller.add_or_edit_character_model)
         self.char_window.canceled.connect(self.controller.cancel)
         self.char_window.show()
-
-        # window.finished.connect(char_loop.quit)
-        # print("test one two")
-        # char_loop.exec_()
-        # if window.cancel:
-        #     return
-        # else:
-        #     return window.data
         return self.char_window
 
     def save_as_window(self):
@@ -175,3 +193,44 @@ class AddCharacterView(QtWidgets.QWidget, Ui_AddCharacterWindow):
 
         def cancel(self):
             self.canceled.emit()
+
+
+class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
+    send_character_data = pyqtSignal(dict)
+    canceled = pyqtSignal()
+
+    def __init__(self, view = None, data = dict):
+        QtWidgets.QWidget.__init__(self)
+        Ui_AddCharacterWindow.__init__(self)
+        self.view = view
+        self.setupUi(self)
+        self.connect_signals()
+        self.fill_data(data)
+
+    def connect_signals(self):
+        self.addBtn.clicked.connect(self.create_character)
+        self.cancelBtn.clicked.connect(self.cancel)
+
+    def fill_data(self, data):
+        self.nameLineEdit.setText(data['name'])
+        self.ageLineEdit.setText(data['age'])
+        self.descTextEdit.setPlainText(data['desc'])
+
+    def create_character(self):
+        self.data = {}
+        self.data['name'] = self.nameLineEdit.text()
+        self.data['age'] = self.ageLineEdit.text()
+        self.data['desc'] = self.descTextEdit.toPlainText()
+        self.send_character_data.emit(self.data)
+        print("set point")
+
+    def cancel(self):
+        self.canceled.emit()
+
+
+class CharListWidgetItem(QtWidgets.QListWidgetItem):
+    def __init__(self, *args, uuid='', **kwargs ):
+        super().__init__(*args, **kwargs)
+        self.uuid = uuid
+
+

@@ -63,7 +63,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="plainTextEdit_2">
+   <widget class="QPlainTextEdit" name="sceneTextEdit">
     <property name="geometry">
      <rect>
       <x>50</x>
@@ -86,7 +86,7 @@
      <string>TextLabel</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="listWidget">
+   <widget class="QListWidget" name="characterList">
     <property name="geometry">
      <rect>
       <x>760</x>
@@ -117,6 +117,44 @@
     </property>
     <property name="text">
      <string>+ Character</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="charDetailsBtn">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>410</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>View Details</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="plotSlider">
+    <property name="geometry">
+     <rect>
+      <x>49</x>
+      <y>80</y>
+      <width>521</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>5</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="invertedAppearance">
+     <bool>false</bool>
+    </property>
+    <property name="tickPosition">
+     <enum>QSlider::TicksBothSides</enum>
+    </property>
+    <property name="tickInterval">
+     <number>1</number>
     </property>
    </widget>
   </widget>
