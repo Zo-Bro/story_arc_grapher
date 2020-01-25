@@ -47,6 +47,7 @@ class Controller(QtCore.QObject):
         self.view.saveBtn.clicked.connect(self.save_data)
         self.view.newCharBtn.clicked.connect(self.add_character_view)
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
+        self.view.addEntryBtn.clicked.connect(self.add_entry_view)
         pass
 
     def add_character_view(self):
@@ -67,11 +68,25 @@ class Controller(QtCore.QObject):
         print("canceled")
         self.view.char_window.close()
 
+    def edit_entry_view(self):
+        self.view.edit_entry_window()
+
+    def add_entry_view(self):
+        entry_value = self.view.plotSlider.maximum() + 1
+        for character in self.model.data['characters']:
+            self.model.create_empty_entry(character['uuid'], append=True)
+
+        self.view.add_entry_to_end_window()
+
+    def insert_entry_view(self):
+        pass
+
     def refresh_view(self):
         '''
         update the view with new information
 
         '''
+        #update the character list
         for x in range(0, self.view.characterList.count()):
             self.view.characterList.takeItem(x)
         name_list = []
@@ -81,6 +96,9 @@ class Controller(QtCore.QObject):
         for name_uuid in sorted_name_list:
             temp_widget = view.CharListWidgetItem(name_uuid[0], uuid=name_uuid[1])
             self.view.characterList.addItem(temp_widget)
+
+        #update the entry widget
+        self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view, data = self.model.data, beat_num = self.view.plotSlider.value()))
         #self.view.refresh_view(self.model.data)
 
         pass

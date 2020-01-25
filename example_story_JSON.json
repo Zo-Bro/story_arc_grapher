@@ -11,20 +11,45 @@
 							"name":"Bob",
 							"uuid":"123-123-123",
 							"profile-pic":".\\relative\\path.jpg",
-							"character_sheet":".\\relative\\path.json",
-							"beats":[
-										{
-										"x":1,
-										"scales":[3,6,4],
-										"notes_list":["asd", "bnm", "tyu"],
-										},
-										{
-										"x":2,
-										"scales":[0,0,0],
-										"notes_list":["","",""],
-										}
-									]
-							},
-						]
+							"character_sheet":".\\relative\\path.json"
+							}
+						],
+			"beats": [
+				{
+				"synopsis": "bob finds out karen is sleeping with brent",
+					"x": 0,
+					"characters":
+					[
+						{
+					//each dict is a characters beat information, the uuid is the character uuid
+					"uuid": 12345,
+					"scale_list": [
+						0,
+						0,
+						0
+					],
+					"notes_list": [
+						"",
+						"",
+						""
+					]
+						},
+						{
+					"uuid": 99999,
+					"scale_list": [
+						0,
+						0,
+						0
+					],
+					"notes_list": [
+						"",
+						"",
+						""
+					]
+						}
+					]
+				}
+
+			]
 		}
 }

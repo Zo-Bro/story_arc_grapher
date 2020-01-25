@@ -25,10 +25,6 @@ DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit plainTextEdit
 DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit plainTextEdit
 DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
 DEBUG:PyQt5.uic.properties:setting property geometry
-DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit sceneTextEdit
-DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit sceneTextEdit
-DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
-DEBUG:PyQt5.uic.properties:setting property geometry
 DEBUG:PyQt5.uic.properties:setting property text
 DEBUG:PyQt5.uic.uiparser:push QLabel label
 DEBUG:PyQt5.uic.uiparser:pop widget QLabel label
@@ -60,6 +56,28 @@ DEBUG:PyQt5.uic.properties:setting property tickPosition
 DEBUG:PyQt5.uic.properties:setting property tickInterval
 DEBUG:PyQt5.uic.uiparser:push QSlider plotSlider
 DEBUG:PyQt5.uic.uiparser:pop widget QSlider plotSlider
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton addEntryBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton addEntryBtn
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton moveEntryRightBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton moveEntryRightBtn
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton moveEntryLeftBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton moveEntryLeftBtn
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.uiparser:push QWidget verticalLayoutWidget
+DEBUG:PyQt5.uic.properties:setting property pyuicMargins
+DEBUG:PyQt5.uic.uiparser:push QVBoxLayout tabHolder
+DEBUG:PyQt5.uic.uiparser:pop layout QVBoxLayout tabHolder
+DEBUG:PyQt5.uic.uiparser:pop widget QWidget verticalLayoutWidget
 DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
 DEBUG:PyQt5.uic.uiparser:pop widget QWidget centralwidget
 DEBUG:PyQt5.uic.uiparser:new topwidget MainWindow
@@ -170,3 +188,70 @@ DEBUG:PyQt5.uic.uiparser:pop widget QPushButton cancelBtn
 DEBUG:PyQt5.uic.uiparser:new topwidget Form
 DEBUG:PyQt5.uic.uiparser:pop widget QWidget Form
 DEBUG:PyQt5.uic.uiparser:new topwidget None
+DEBUG:PyQt5.uic.uiparser:UI version is 4.0
+DEBUG:PyQt5.uic.uiparser:uiname is Form
+DEBUG:PyQt5.uic.uiparser:toplevel widget is QWidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property windowTitle
+DEBUG:PyQt5.uic.uiparser:push QWidget Form
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QLabel label
+DEBUG:PyQt5.uic.uiparser:pop widget QLabel label
+DEBUG:PyQt5.uic.uiparser:new topwidget Form
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit sceneTextEdit_2
+DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit sceneTextEdit_2
+DEBUG:PyQt5.uic.uiparser:new topwidget Form
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.uiparser:push QWidget gridLayoutWidget
+DEBUG:PyQt5.uic.properties:setting property pyuicMargins
+DEBUG:PyQt5.uic.uiparser:push QGridLayout gridLayout
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QLabel label_3
+DEBUG:PyQt5.uic.uiparser:pop widget QLabel label_3
+DEBUG:PyQt5.uic.uiparser:new topwidget self.gridLayoutWidget
+DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit plainTextEdit
+DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit plainTextEdit
+DEBUG:PyQt5.uic.uiparser:new topwidget self.gridLayoutWidget
+DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit plainTextEdit_2
+DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit plainTextEdit_2
+DEBUG:PyQt5.uic.uiparser:new topwidget self.gridLayoutWidget
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QLabel label_4
+DEBUG:PyQt5.uic.uiparser:pop widget QLabel label_4
+DEBUG:PyQt5.uic.uiparser:new topwidget self.gridLayoutWidget
+DEBUG:PyQt5.uic.uiparser:pop layout QGridLayout gridLayout
+DEBUG:PyQt5.uic.uiparser:pop widget QWidget gridLayoutWidget
+DEBUG:PyQt5.uic.uiparser:new topwidget Form
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QLabel label_2
+DEBUG:PyQt5.uic.uiparser:pop widget QLabel label_2
+DEBUG:PyQt5.uic.uiparser:new topwidget Form
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton pushButton
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton pushButton
+DEBUG:PyQt5.uic.uiparser:new topwidget Form
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton pushButton_2
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton pushButton_2
+DEBUG:PyQt5.uic.uiparser:new topwidget Form
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property font
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QLabel label_5
+DEBUG:PyQt5.uic.uiparser:pop widget QLabel label_5
+DEBUG:PyQt5.uic.uiparser:new topwidget Form
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.uiparser:push QWidget verticalLayoutWidget
+DEBUG:PyQt5.uic.properties:setting property pyuicMargins
+DEBUG:PyQt5.uic.uiparser:push QVBoxLayout tabHolder
+DEBUG:PyQt5.uic.uiparser:pop layout QVBoxLayout tabHolder
+DEBUG:PyQt5.uic.uiparser:pop widget QWidget verticalLayoutWidget
+DEBUG:PyQt5.uic.uiparser:new topwidget Form
+DEBUG:PyQt5.uic.uiparser:pop widget QWidget Form
+DEBUG:PyQt5.uic.uiparser:new topwidget None
+INFO:root:no existing character found, adding new one

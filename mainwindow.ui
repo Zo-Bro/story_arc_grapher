@@ -63,16 +63,6 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPlainTextEdit" name="sceneTextEdit">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>390</y>
-      <width>531</width>
-      <height>141</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
@@ -155,6 +145,69 @@
     </property>
     <property name="tickInterval">
      <number>1</number>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="insertEntryBtn">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>70</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Insert Entry</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="moveEntryRightBtn">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>110</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>move entry &gt;</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="moveEntryLeftBtn">
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>140</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>move entry &lt;</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>380</y>
+      <width>521</width>
+      <height>161</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="tabHolder"/>
+   </widget>
+   <widget class="QPushButton" name="addEntryBtn">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>70</y>
+      <width>121</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Add Entry to End</string>
     </property>
    </widget>
   </widget>

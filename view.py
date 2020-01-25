@@ -29,9 +29,11 @@ logging.basicConfig(filename='log.log', filemode='w', level=logging.DEBUG)
 ui_file = "mainwindow.ui"
 add_char_ui_file = "add_character_window.ui"
 edit_char_ui_file = "character_details_window.ui"
+add_entry_ui_file = "add_entry_window.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(ui_file)
 Ui_AddCharacterWindow, QtBaseClass = uic.loadUiType(add_char_ui_file)
 Ui_EditCharacterWindow, QtBaseClass = uic.loadUiType(edit_char_ui_file)
+Ui_AddEntryWindow, QtBaseClass = uic.loadUiType(add_entry_ui_file)
 
 class View(QtWidgets.QMainWindow, Ui_MainWindow):
     '''
@@ -116,6 +118,11 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         pass
 
     def new_entry_window(self):
+        pass
+
+    def add_entry_to_end_window(self):
+
+
         pass
 
     def edit_entry_window(self, entry_int):
@@ -228,9 +235,75 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
         self.canceled.emit()
 
 
+class AddEntryView(QtWidgets.QWidget, Ui_AddCharacterWindow):
+    send_entry_data = pyqtSignal(dict)
+    canceled = pyqtSignal()
+
+    def __init__(self, view=None):
+        QtWidgets.QWidget.__init__(self)
+        Ui_AddCharacterWindow.__init__(self)
+        self.setupUi(self)
+        self.view = view
+        self.connect_signals()
+    def connect_signals(self):
+
+        pass
+
 class CharListWidgetItem(QtWidgets.QListWidgetItem):
     def __init__(self, *args, uuid='', **kwargs ):
         super().__init__(*args, **kwargs)
         self.uuid = uuid
 
 
+class EntryPerCharWidget(QtWidgets.QWidget):
+    """
+    This creates a tabbed view of the specific entry for each character.
+    A separate implementation of this will make one tab per entry for a single character.
+
+    """
+    def __init__(self, *args, view=None, data=None, beat_num=None, **kwargs):
+        """
+        data = the entire JSON data contained in the model
+        beat_num = the integer for the entry to display
+
+        """
+        super().__init__(*args, **kwargs)
+        self.view = view
+        self.beat_num = beat_num + 1
+        if len(data['beats']) > 0:
+            self.create_tabWidget(data)
+
+
+    def create_tabWidget(self, data):
+        """
+        create the entire tabwidget
+        sets everything to self, so it can be easily referenced
+
+        """
+        self.layout = QtWidgets.QVBoxLayout(self)
+        self.tabWidget = QtWidgets.QTabWidget()
+        self.tabs = []
+
+        for character in data['beats'][self.beat_num]['characters']:
+            name = self.view.controller.model.get_character_data(character['uuid'], 'name')
+            self.tabs.append(self.create_character_tab(character), name)
+
+        for tab in self.tabs:
+            self.tabWidget.addTab(tab[0], tab[1])
+
+        self.layout.addWidget(self.tabWidget)
+        self.setLayout(self.layout)
+
+    def create_character_tab(self, entry_character_data):
+        """
+        create a character tab, and return the reference to the tab
+        Each character tab contains the character's name
+        and the entry text for the specified entry_num
+        """
+        tab = QtWidgets.QWidget()
+        tab.layout = QtWidgets.QVBoxLayout(tab)
+        tab.entryTextEdit = QtWidgets.QPlainTextEdit()
+        tab.layout.addWidget(tab.entryTextEdit)
+        tab.entryTextEdit.setPlainText(entry_character_data["notes_list"][self.beat_num])
+        tab.setLayout(tab.layout)
+        return tab
