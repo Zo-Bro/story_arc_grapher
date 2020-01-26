@@ -26,7 +26,7 @@
     <string>Entry</string>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="sceneTextEdit_2">
+  <widget class="QPlainTextEdit" name="synopsisTextEdit">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -81,7 +81,7 @@
     <string>Synopsis</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="addEntryBtn">
    <property name="geometry">
     <rect>
      <x>200</x>
@@ -94,7 +94,7 @@
     <string>Add Entry</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="cancelBtn">
    <property name="geometry">
     <rect>
      <x>300</x>

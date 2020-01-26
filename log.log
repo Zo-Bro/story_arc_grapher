@@ -59,8 +59,8 @@ DEBUG:PyQt5.uic.uiparser:pop widget QSlider plotSlider
 DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
 DEBUG:PyQt5.uic.properties:setting property geometry
 DEBUG:PyQt5.uic.properties:setting property text
-DEBUG:PyQt5.uic.uiparser:push QPushButton addEntryBtn
-DEBUG:PyQt5.uic.uiparser:pop widget QPushButton addEntryBtn
+DEBUG:PyQt5.uic.uiparser:push QPushButton insertEntryBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton insertEntryBtn
 DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
 DEBUG:PyQt5.uic.properties:setting property geometry
 DEBUG:PyQt5.uic.properties:setting property text
@@ -78,6 +78,11 @@ DEBUG:PyQt5.uic.properties:setting property pyuicMargins
 DEBUG:PyQt5.uic.uiparser:push QVBoxLayout tabHolder
 DEBUG:PyQt5.uic.uiparser:pop layout QVBoxLayout tabHolder
 DEBUG:PyQt5.uic.uiparser:pop widget QWidget verticalLayoutWidget
+DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
+DEBUG:PyQt5.uic.properties:setting property geometry
+DEBUG:PyQt5.uic.properties:setting property text
+DEBUG:PyQt5.uic.uiparser:push QPushButton addEntryBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton addEntryBtn
 DEBUG:PyQt5.uic.uiparser:new topwidget self.centralwidget
 DEBUG:PyQt5.uic.uiparser:pop widget QWidget centralwidget
 DEBUG:PyQt5.uic.uiparser:new topwidget MainWindow
@@ -200,8 +205,8 @@ DEBUG:PyQt5.uic.uiparser:push QLabel label
 DEBUG:PyQt5.uic.uiparser:pop widget QLabel label
 DEBUG:PyQt5.uic.uiparser:new topwidget Form
 DEBUG:PyQt5.uic.properties:setting property geometry
-DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit sceneTextEdit_2
-DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit sceneTextEdit_2
+DEBUG:PyQt5.uic.uiparser:push QPlainTextEdit synopsisTextEdit
+DEBUG:PyQt5.uic.uiparser:pop widget QPlainTextEdit synopsisTextEdit
 DEBUG:PyQt5.uic.uiparser:new topwidget Form
 DEBUG:PyQt5.uic.properties:setting property geometry
 DEBUG:PyQt5.uic.uiparser:push QWidget gridLayoutWidget
@@ -231,13 +236,13 @@ DEBUG:PyQt5.uic.uiparser:pop widget QLabel label_2
 DEBUG:PyQt5.uic.uiparser:new topwidget Form
 DEBUG:PyQt5.uic.properties:setting property geometry
 DEBUG:PyQt5.uic.properties:setting property text
-DEBUG:PyQt5.uic.uiparser:push QPushButton pushButton
-DEBUG:PyQt5.uic.uiparser:pop widget QPushButton pushButton
+DEBUG:PyQt5.uic.uiparser:push QPushButton addEntryBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton addEntryBtn
 DEBUG:PyQt5.uic.uiparser:new topwidget Form
 DEBUG:PyQt5.uic.properties:setting property geometry
 DEBUG:PyQt5.uic.properties:setting property text
-DEBUG:PyQt5.uic.uiparser:push QPushButton pushButton_2
-DEBUG:PyQt5.uic.uiparser:pop widget QPushButton pushButton_2
+DEBUG:PyQt5.uic.uiparser:push QPushButton cancelBtn
+DEBUG:PyQt5.uic.uiparser:pop widget QPushButton cancelBtn
 DEBUG:PyQt5.uic.uiparser:new topwidget Form
 DEBUG:PyQt5.uic.properties:setting property geometry
 DEBUG:PyQt5.uic.properties:setting property font
@@ -254,4 +259,4 @@ DEBUG:PyQt5.uic.uiparser:pop widget QWidget verticalLayoutWidget
 DEBUG:PyQt5.uic.uiparser:new topwidget Form
 DEBUG:PyQt5.uic.uiparser:pop widget QWidget Form
 DEBUG:PyQt5.uic.uiparser:new topwidget None
-INFO:root:no existing character found, adding new one
+DEBUG:root:Load Story Path: C:/Users/zoeys/pythonscripts/story_arc_grapher/save_files/test_project.json

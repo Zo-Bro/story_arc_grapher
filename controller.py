@@ -47,36 +47,54 @@ class Controller(QtCore.QObject):
         self.view.saveBtn.clicked.connect(self.save_data)
         self.view.newCharBtn.clicked.connect(self.add_character_view)
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
-        self.view.addEntryBtn.clicked.connect(self.add_entry_view)
+        self.view.addEntryBtn.clicked.connect(self.add_entry_to_end_view)
         pass
 
     def add_character_view(self):
         '''
-
+        opens the window for creating a new character
         '''
         if hasattr(self.view, 'char_window'):
-            self.view.char_window.show()
+            if self.view.char_window is not None:
+                self.view.char_window.show()
         else:
             self.view.add_character_window()
+
+    def edit_character_view(self):
+
+        if hasattr(self.view, 'edit_char_window'):
+            if self.view.edit_char_window is not None:
+                self.view.edit_char_window.show()
+        else:
+            self.view.edit_character_window()
             
-    def add_or_edit_character_model(self, data):
-        self.model.add_or_edit_character(data)
+    def add_character_to_model(self, data):
+        self.model.add_character(data)
         self.view.char_window.close()
         self.refresh_view()
 
-    def cancel(self):
+    def edit_character_in_model(self, data):
+        self.model.edit_character(data)
+        self.view.edit_char_window.close()
+        self.refresh_view()
+
+    def cancel(self, window_to_close):
         print("canceled")
-        self.view.char_window.close()
+        window_to_close.close()
 
     def edit_entry_view(self):
-        self.view.edit_entry_window()
+        entry_value = self.view.plotSlider.value()
+        self.view.edit_entry_window(append = False, x=entry_value)
 
-    def add_entry_view(self):
-        entry_value = self.view.plotSlider.maximum() + 1
-        for character in self.model.data['characters']:
-            self.model.create_empty_entry(character['uuid'], append=True)
+    def add_entry_to_end_view(self):
+        for uuid, char_data in self.model.data['characters'].items():
+            self.model.create_empty_entry(uuid, append=True)
+        beat_num = self.view.plotSlider.maximum()
+        self.view.add_entry_to_end_window(beat_num)
 
-        self.view.add_entry_to_end_window()
+    def add_entry_to_end_model(self):
+
+        pass
 
     def insert_entry_view(self):
         pass
@@ -87,11 +105,11 @@ class Controller(QtCore.QObject):
 
         '''
         #update the character list
-        for x in range(0, self.view.characterList.count()):
+        for x in range(0, self.view.characterList.count()+1):
             self.view.characterList.takeItem(x)
         name_list = []
-        for item in self.model.data['characters']:
-            name_list.append((item['name'], item['uuid']))
+        for key, value in self.model.data['characters'].items():
+            name_list.append((value['name'], key))
         sorted_name_list = sorted(name_list, key=lambda x: x[0])
         for name_uuid in sorted_name_list:
             temp_widget = view.CharListWidgetItem(name_uuid[0], uuid=name_uuid[1])
@@ -112,10 +130,10 @@ class Controller(QtCore.QObject):
         '''
         if self.view.characterList.count() > 0:
             temp_widget = self.view.characterList.currentItem()
-            for char_data in self.model.data['characters']:
-                if char_data['uuid'] == temp_widget.uuid:
-                    self.view.add_character_window(data=char_data)
-                    return
+            if temp_widget is not None:
+                char_data = self.model.data['characters'][temp_widget.uuid]
+                self.view.edit_character_window(char_data)
+                return
             #handle the error if someone with that uuid cannot be found: delete the entry in the listWidget.
         else:
             return
@@ -183,6 +201,7 @@ class Controller(QtCore.QObject):
             self.model.load_data(save_dir)
             self.view.clear()
             self.view.default_view()
+            self.refresh_view()
         elif type(save_dir) == type(None):
             #message box stating load data is not valid.
             # need to have a custom file type or a "save verification" so bad json doesn't get loaded
@@ -216,6 +235,7 @@ Load Empty View
 ->User Choice: Start new or open existing.
 
 '''
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     Controller = Controller(model = model.Story_Object(), view = view.View())

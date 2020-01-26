@@ -49,7 +49,7 @@ class Story_Object(object):
                                     "color_theme":[],
                                     "save_dir":"",
                                     "scale_dict":{},
-                                    "characters":[],
+                                    "characters":{},
                                     "beats":[]
         }
         self.start_up()
@@ -69,14 +69,15 @@ class Story_Object(object):
             self.data["uuid"] = UUID()
             self.data["scale_dict"] = {}
             self.data["save_dir"] = None
-            self.is_dirty = True
+            self.is_dirty = False
             return
         
     def load_data(self, save_dir):
         '''
         load json data for an entire story object.
         '''
-        self.data = json.loads(save_dir)
+        save_file = open(save_dir, 'r')
+        self.data = json.load(save_file)
         self.save_dir = save_dir
         self.is_dirty = False
             
@@ -108,21 +109,21 @@ class Story_Object(object):
 
             self.is_dirty = False
 
-    def add_or_edit_character(self, data=None):
+    def add_character(self, data):
         '''
         JSON data is stored as a dict in python, so I should store each character's data as a dict as well.
         This means that my characters most likely dont need to be a Class object.
         '''
-        for char in self.data['characters']:
-            if data.uuid == char['uuid']:
-                for key, value in data:
-                    char.set_data(key=key, value=value)
-                    self.is_dirty = True
-                return
+        uuid = UUID()
+        data["uuid"] = uuid
+        self.data["characters"][str(uuid)] = data
         logging.info("no existing character found, adding new one")
-        new_character = Character_Object(data)
-        # JSON is a dict in python, so add this character to the python dict in the characters section
-        self.data['characters'].append(new_character.get_data())
+        self.is_dirty = True
+        return
+
+    def edit_character(self, data):
+        logging.info("edit_character() called on :" + data["name"])
+        self.data["characters"][str(data["uuid"])]=data
         self.is_dirty = True
         return
 
@@ -148,41 +149,34 @@ class Story_Object(object):
             if char["uuid"] == char_ID:
                 return char[data_key]
 
-    def create_empty_entry(self, char_ID, append=False, x=0):
+    def create_empty_entry(self, char_ID, append=True, x=0):
+        '''
+        insert a placeholder entry for the specified character.
+        If append is false, insert into the space indicated with "x"
+        '''
+        if len(self.data["beats"]) == 0:
+            self.data["beats"].append(self.beat_object())
         if append == False:
-            for char in self.data["beats"][x]["characters"]:
-                if char['uuid'] == char_ID:
-                    break
-                else:
-                    self.data["beats"][x]["characters"].append(Beat_Object.)
+            self.data["beats"][x]["characters"][char_ID] = self.entry_object(char_ID)
+        else:
+            self.data["beats"][-1]["characters"][char_ID] = self.entry_object(char_ID)
 
-class Beat_Object(object):
-    '''
-    This is the contents of an entry that is stored in each Character Object
-    '''
-    def __init__(self, x, synopsis=""):
-        '''
-        args:
-        x (INT) = the location of this entry on the x axis of the story arc graph
-        scale_dict (DICT) =  key (STR): a UUID for the user's defined scale; value (FLT): the location on that scale
-        description (STR) = a string that lets the user record some text about this entry.
-        '''
-        self.empty_entry_object = {
-                                    "synopsis":"",
-                                    "x":0,
-                                    "characters":[]
-        }
-        self.data = {}
-        self.data["x"] = x
-        self.data["synopsis"] = synopsis
-        self.data["characters"] = []
+    def entry_object(self, uuid, scale_list = [0], notes_list = [""]):
+        """
+        convenience function for creating an empty entry dict
+        """
+        data = {}
+        data["uuid"] = uuid
+        data["scale_list"] = scale_list
+        data["notes_list"] = notes_list
+        return data
 
-    def empty_character_entry(self, char_ID,):
-        Story_Object.get_character_data(Story_Object, char_ID, "name")
-
-
-
-
+    def beat_object(self):
+        data = {}
+        data["synopsis"] = ""
+        data["uuid"] = UUID()
+        data["characters"] = {}
+        return data
 
 class Character_Object(object):
     #the character has different story entries, and we can establish a trend line

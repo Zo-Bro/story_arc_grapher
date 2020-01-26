@@ -15,41 +15,42 @@
 							}
 						],
 			"beats": [
-				{
-				"synopsis": "bob finds out karen is sleeping with brent",
-					"x": 0,
-					"characters":
-					[
 						{
-					//each dict is a characters beat information, the uuid is the character uuid
-					"uuid": 12345,
-					"scale_list": [
-						0,
-						0,
-						0
-					],
-					"notes_list": [
-						"",
-						"",
-						""
-					]
-						},
-						{
-					"uuid": 99999,
-					"scale_list": [
-						0,
-						0,
-						0
-					],
-					"notes_list": [
-						"",
-						"",
-						""
-					]
+						"synopsis": "bob finds out karen is sleeping with brent",
+						"uuid": 56565,
+						"characters": {
+										"12345":{
+											//each dict is a characters beat information, the uuid is the character uuid
+											"uuid": 12345,
+											"scale_list": [
+												0,
+												0,
+												0
+											],
+											"notes_list": [
+												"",
+												"",
+												""
+											]
+										},
+										"99999":{
+										"uuid": 99999,
+										"scale_list": [
+										0,
+										0,
+										0
+										],
+										"notes_list": [
+										"",
+										"",
+										""
+										]
+										}
+										}
 						}
-					]
-				}
 
-			]
-		}
+					]
+
+
+}
 }

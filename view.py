@@ -120,7 +120,14 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
     def new_entry_window(self):
         pass
 
-    def add_entry_to_end_window(self):
+    def add_entry_to_end_window(self, beat_num):
+        self.entry_window = AddEntryView(view = self, beat_num=beat_num)
+
+        self.entry_window.send_entry_data.connect(self.controller.add_entry_to_end_model)
+        self.entry_window.canceled.connect(self.controller.cancel)
+        self.entry_window.show()
+        return self.entry_window
+
 
 
         pass
@@ -137,21 +144,25 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
 
         '''
 
-    def add_character_window(self, data=None):
+    def add_character_window(self):
         '''
         load a pop up window that lets you edit a character or add a new one,
          depending on if you passed in data or not
         returns the window object.
         '''
-        if data:
-            self.char_window = EditCharacterView(view = self, data=data)
-        else:
-            self.char_window = AddCharacterView(view = self)
+        self.char_window = AddCharacterView(view = self)
 
-        self.char_window.send_character_data.connect(self.controller.add_or_edit_character_model)
+        self.char_window.send_character_data.connect(self.controller.add_character_to_model)
         self.char_window.canceled.connect(self.controller.cancel)
         self.char_window.show()
         return self.char_window
+
+    def edit_character_window(self, data):
+        self.edit_char_window = EditCharacterView(view = self, data = data)
+        self.edit_char_window.send_character_data.connect(self.controller.edit_character_in_model)
+        self.edit_char_window.canceled_signal.connect(self.controller.cancel)
+        self.edit_char_window.show()
+        return self.edit_char_window
 
     def save_as_window(self):
         print("saved!")
@@ -177,7 +188,7 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
 class AddCharacterView(QtWidgets.QWidget, Ui_AddCharacterWindow):
         
         send_character_data = pyqtSignal(dict)
-        canceled = pyqtSignal()
+        canceled = pyqtSignal(QtWidgets.QWidget)
 
         def __init__(self, view=None):
             QtWidgets.QWidget.__init__(self)
@@ -196,15 +207,14 @@ class AddCharacterView(QtWidgets.QWidget, Ui_AddCharacterWindow):
             self.data['age'] = self.ageLineEdit.text()
             self.data['desc'] = self.descTextEdit.toPlainText()
             self.send_character_data.emit(self.data)
-            print("set point")
 
         def cancel(self):
-            self.canceled.emit()
+            self.canceled.emit(self)
 
 
 class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
     send_character_data = pyqtSignal(dict)
-    canceled = pyqtSignal()
+    canceled_signal = pyqtSignal(QtWidgets.QWidget)
 
     def __init__(self, view = None, data = dict):
         QtWidgets.QWidget.__init__(self)
@@ -213,9 +223,10 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
         self.setupUi(self)
         self.connect_signals()
         self.fill_data(data)
+        self.data = data
 
     def connect_signals(self):
-        self.addBtn.clicked.connect(self.create_character)
+        self.addBtn.clicked.connect(self.edit_character)
         self.cancelBtn.clicked.connect(self.cancel)
 
     def fill_data(self, data):
@@ -223,8 +234,7 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
         self.ageLineEdit.setText(data['age'])
         self.descTextEdit.setPlainText(data['desc'])
 
-    def create_character(self):
-        self.data = {}
+    def edit_character(self):
         self.data['name'] = self.nameLineEdit.text()
         self.data['age'] = self.ageLineEdit.text()
         self.data['desc'] = self.descTextEdit.toPlainText()
@@ -232,24 +242,57 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
         print("set point")
 
     def cancel(self):
-        self.canceled.emit()
+        self.canceled_signal.emit(self)
 
 
-class AddEntryView(QtWidgets.QWidget, Ui_AddCharacterWindow):
-    send_entry_data = pyqtSignal(dict)
-    canceled = pyqtSignal()
+class AddEntryView(QtWidgets.QWidget, Ui_AddEntryWindow):
+    send_entry_data = pyqtSignal(list)
+    canceled = pyqtSignal(QtWidgets.QWidget)
 
-    def __init__(self, view=None):
+    def __init__(self, view=None, beat_num=int):
         QtWidgets.QWidget.__init__(self)
-        Ui_AddCharacterWindow.__init__(self)
+        Ui_AddEntryWindow.__init__(self)
         self.setupUi(self)
         self.view = view
+        self.beat_num = beat_num
+        self.create_character_widgets()
         self.connect_signals()
-    def connect_signals(self):
 
-        pass
+    def connect_signals(self):
+        self.addEntryBtn.clicked.connect(self.create_entry)
+        self.cancelBtn.clicked.connect(self.cancel)
+
+    def create_character_widgets(self):
+        self.tabWidget = EntryPerCharWidget(view=self.view, data=self.view.controller.model.data, beat_num=self.beat_num)
+        self.tabHolder.addWidget(self.tabWidget)
+
+
+    def create_entry(self):
+        """
+        pull data from the widgets and then format it for the model.
+        emit signal and send data.
+        """
+        text_per_character = []
+        for index in range(0, self.tabWidget.tabWidget.count()):
+            tab = self.tabWidget.tabWidget.widget(index)
+            temp_text = tab.entryTextEdit.toPlainText()
+            text_per_character.append((tab.uuid, temp_text))
+        self.data = {}
+        self.data["synopsis"] = self.synopsisTextEdit.toPlainText()
+        self.data["uuid"] = self.view.controller.model.UUID()
+        self.data["characters"]= {}
+        for uuid, text in text_per_character:
+            self.data["characters"][str(uuid)] = {"uuid":uuid, "scale_list":[0], "notes_list":[text]}
+        self.send_entry_data.emit(self.data)
+    def cancel(self):
+        self.canceled.emit(self)
+
+
 
 class CharListWidgetItem(QtWidgets.QListWidgetItem):
+    """
+    a custom version of QListWidgetItem so that it stores the uuid for the character with the item
+    """
     def __init__(self, *args, uuid='', **kwargs ):
         super().__init__(*args, **kwargs)
         self.uuid = uuid
@@ -269,7 +312,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         """
         super().__init__(*args, **kwargs)
         self.view = view
-        self.beat_num = beat_num + 1
+        self.beat_num = beat_num
         if len(data['beats']) > 0:
             self.create_tabWidget(data)
 
@@ -284,9 +327,9 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         self.tabWidget = QtWidgets.QTabWidget()
         self.tabs = []
 
-        for character in data['beats'][self.beat_num]['characters']:
-            name = self.view.controller.model.get_character_data(character['uuid'], 'name')
-            self.tabs.append(self.create_character_tab(character), name)
+        for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
+            name = self.view.controller.model.data["characters"][str(char_uuid)]["name"]
+            self.tabs.append((self.create_character_tab(char_data), name))
 
         for tab in self.tabs:
             self.tabWidget.addTab(tab[0], tab[1])
@@ -301,9 +344,10 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         and the entry text for the specified entry_num
         """
         tab = QtWidgets.QWidget()
+        tab.uuid = entry_character_data["uuid"]
         tab.layout = QtWidgets.QVBoxLayout(tab)
         tab.entryTextEdit = QtWidgets.QPlainTextEdit()
         tab.layout.addWidget(tab.entryTextEdit)
-        tab.entryTextEdit.setPlainText(entry_character_data["notes_list"][self.beat_num])
+        tab.entryTextEdit.setPlainText(entry_character_data["notes_list"][0])
         tab.setLayout(tab.layout)
         return tab
