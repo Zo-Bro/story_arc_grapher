@@ -118,6 +118,7 @@ class Story_Object(object):
         data["uuid"] = uuid
         self.data["characters"][str(uuid)] = data
         logging.info("no existing character found, adding new one")
+
         self.is_dirty = True
         return
 
@@ -148,6 +149,14 @@ class Story_Object(object):
         for char in self.data['characters']:
             if char["uuid"] == char_ID:
                 return char[data_key]
+
+    def add_beat(self, data, append=False, index=0):
+        if append:
+            self.data["beats"].append(data)
+        else:
+            self.data["beats"].insert(data, index)
+        self.is_dirty = True
+
 
     def create_empty_entry(self, char_ID, append=True, x=0):
         '''

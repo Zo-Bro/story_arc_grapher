@@ -47,7 +47,7 @@ class Controller(QtCore.QObject):
         self.view.saveBtn.clicked.connect(self.save_data)
         self.view.newCharBtn.clicked.connect(self.add_character_view)
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
-        self.view.addEntryBtn.clicked.connect(self.add_entry_to_end_view)
+        self.view.addEntryBtn.clicked.connect(self.add_beat_to_end_view)
         pass
 
     def add_character_view(self):
@@ -71,29 +71,37 @@ class Controller(QtCore.QObject):
     def add_character_to_model(self, data):
         self.model.add_character(data)
         self.view.char_window.close()
-        self.refresh_view()
+        self.refresh_view(self.model.data)
 
     def edit_character_in_model(self, data):
         self.model.edit_character(data)
         self.view.edit_char_window.close()
-        self.refresh_view()
+        self.refresh_view(self.model.data)
 
     def cancel(self, window_to_close):
         print("canceled")
         window_to_close.close()
 
-    def edit_entry_view(self):
+    def edit_beat_view(self):
         entry_value = self.view.plotSlider.value()
         self.view.edit_entry_window(append = False, x=entry_value)
 
-    def add_entry_to_end_view(self):
-        for uuid, char_data in self.model.data['characters'].items():
-            self.model.create_empty_entry(uuid, append=True)
-        beat_num = self.view.plotSlider.maximum()
-        self.view.add_entry_to_end_window(beat_num)
+    def add_beat_to_end_view(self):
+        if self.model.data["characters"]:
+            for uuid, char_data in self.model.data['characters'].items():
+                self.model.create_empty_entry(uuid, append=True)
+            beat_num = self.view.plotSlider.maximum()
+            self.view.add_entry_to_end_window(beat_num)
+        else:
+            self.message_box(title="No Characters Exist",
+                             message="Please create at least one character before adding an entry",
+                             icon="warning"
+                             )
 
-    def add_entry_to_end_model(self):
-
+    def add_entry_to_end_model(self, data):
+        self.model.add_beat(data, append=True)
+        self.view.entry_window.close()
+        self.view.refresh_view(self.model.data)
         pass
 
     def insert_entry_view(self):
@@ -116,7 +124,8 @@ class Controller(QtCore.QObject):
             self.view.characterList.addItem(temp_widget)
 
         #update the entry widget
-        self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view, data = self.model.data, beat_num = self.view.plotSlider.value()))
+        if len(self.model.data["beats"]) > 0:
+            self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view, data = self.model.data, beat_num = self.view.plotSlider.value()))
         #self.view.refresh_view(self.model.data)
 
         pass

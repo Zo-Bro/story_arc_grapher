@@ -11,7 +11,7 @@ import json
 import logging
 import uuid
 import os
-
+from model import UUID
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog
@@ -84,6 +84,7 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         pass
 
     def refresh_beat_view(self, data):
+        self.plotSlider.setMaximum(len(data["beats"]))
         pass
 
     def graph_styling(self, grid_x=True, grid_y=True, **kwargs):
@@ -246,7 +247,7 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
 
 
 class AddEntryView(QtWidgets.QWidget, Ui_AddEntryWindow):
-    send_entry_data = pyqtSignal(list)
+    send_entry_data = pyqtSignal(dict)
     canceled = pyqtSignal(QtWidgets.QWidget)
 
     def __init__(self, view=None, beat_num=int):
@@ -279,7 +280,7 @@ class AddEntryView(QtWidgets.QWidget, Ui_AddEntryWindow):
             text_per_character.append((tab.uuid, temp_text))
         self.data = {}
         self.data["synopsis"] = self.synopsisTextEdit.toPlainText()
-        self.data["uuid"] = self.view.controller.model.UUID()
+        self.data["uuid"] = UUID()
         self.data["characters"]= {}
         for uuid, text in text_per_character:
             self.data["characters"][str(uuid)] = {"uuid":uuid, "scale_list":[0], "notes_list":[text]}
@@ -313,8 +314,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.view = view
         self.beat_num = beat_num
-        if len(data['beats']) > 0:
-            self.create_tabWidget(data)
+        self.create_tabWidget(data)
 
 
     def create_tabWidget(self, data):
