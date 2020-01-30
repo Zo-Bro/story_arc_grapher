@@ -48,6 +48,8 @@ class Controller(QtCore.QObject):
         self.view.newCharBtn.clicked.connect(self.add_character_view)
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
         self.view.addEntryBtn.clicked.connect(self.add_beat_to_end_view)
+        self.view.plotSlider.valueChanged.connect(lambda: self.view.refresh_synopsis_view(self.model.data))
+
         pass
 
     def add_character_view(self):
@@ -71,12 +73,12 @@ class Controller(QtCore.QObject):
     def add_character_to_model(self, data):
         self.model.add_character(data)
         self.view.char_window.close()
-        self.refresh_view(self.model.data)
+        self.refresh_view()
 
     def edit_character_in_model(self, data):
         self.model.edit_character(data)
         self.view.edit_char_window.close()
-        self.refresh_view(self.model.data)
+        self.refresh_view()
 
     def cancel(self, window_to_close):
         print("canceled")
@@ -87,9 +89,13 @@ class Controller(QtCore.QObject):
         self.view.edit_entry_window(append = False, x=entry_value)
 
     def add_beat_to_end_view(self):
+        # before we add new beats, lets just make sure all characters have a beat
+        # this can occur if a new character is made in the middle of a project
         if self.model.data["characters"]:
-            for uuid, char_data in self.model.data['characters'].items():
-                self.model.create_empty_entry(uuid, append=True)
+            for char_uuid, char_data in self.model.data['characters'].items():
+                for beat_index in range( 0, len(self.model.data["beats"])):
+                    if char_uuid not in self.model.data["beats"][beat_index]["characters"].keys():
+                        self.model.create_empty_entry(char_uuid, beat_index)
             beat_num = self.view.plotSlider.maximum()
             self.view.add_entry_to_end_window(beat_num)
         else:
@@ -112,21 +118,11 @@ class Controller(QtCore.QObject):
         update the view with new information
 
         '''
-        #update the character list
-        for x in range(0, self.view.characterList.count()+1):
-            self.view.characterList.takeItem(x)
-        name_list = []
-        for key, value in self.model.data['characters'].items():
-            name_list.append((value['name'], key))
-        sorted_name_list = sorted(name_list, key=lambda x: x[0])
-        for name_uuid in sorted_name_list:
-            temp_widget = view.CharListWidgetItem(name_uuid[0], uuid=name_uuid[1])
-            self.view.characterList.addItem(temp_widget)
-
-        #update the entry widget
+        #update the Tab Widget
         if len(self.model.data["beats"]) > 0:
             self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view, data = self.model.data, beat_num = self.view.plotSlider.value()))
-        #self.view.refresh_view(self.model.data)
+
+        self.view.refresh_view(self.model.data)
 
         pass
 

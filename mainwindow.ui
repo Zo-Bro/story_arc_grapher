@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1115</width>
-    <height>616</height>
+    <width>1101</width>
+    <height>814</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,152 +63,228 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>360</y>
-      <width>55</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-   </widget>
-   <widget class="QListWidget" name="characterList">
-    <property name="geometry">
-     <rect>
-      <x>760</x>
-      <y>210</y>
-      <width>256</width>
-      <height>192</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="PlotWidget" name="graphWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>49</x>
-      <y>119</y>
-      <width>521</width>
-      <height>231</height>
+      <x>930</x>
+      <y>640</y>
+      <width>161</width>
+      <height>111</height>
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="newCharBtn">
+   <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>170</y>
-      <width>93</width>
-      <height>28</height>
+      <x>720</x>
+      <y>100</y>
+      <width>211</width>
+      <height>661</height>
      </rect>
     </property>
-    <property name="text">
-     <string>+ Character</string>
+    <property name="title">
+     <string>Characters</string>
     </property>
+    <widget class="QWidget" name="verticalLayoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>191</width>
+       <height>631</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QListWidget" name="characterList"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="charDetailsBtn">
+        <property name="text">
+         <string>View Details</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="newCharBtn">
+        <property name="text">
+         <string>+ Character</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
-   <widget class="QPushButton" name="charDetailsBtn">
+   <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>410</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>View Details</string>
-    </property>
-   </widget>
-   <widget class="QSlider" name="plotSlider">
-    <property name="geometry">
-     <rect>
-      <x>49</x>
+      <x>10</x>
       <y>80</y>
-      <width>521</width>
-      <height>22</height>
+      <width>711</width>
+      <height>681</height>
      </rect>
     </property>
-    <property name="maximum">
-     <number>0</number>
+    <property name="title">
+     <string>Plot</string>
     </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-    <property name="invertedAppearance">
-     <bool>false</bool>
-    </property>
-    <property name="tickPosition">
-     <enum>QSlider::TicksBothSides</enum>
-    </property>
-    <property name="tickInterval">
-     <number>1</number>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="insertEntryBtn">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>70</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Insert Entry</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="moveEntryRightBtn">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>110</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>move entry &gt;</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="moveEntryLeftBtn">
-    <property name="geometry">
-     <rect>
-      <x>590</x>
-      <y>140</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>move entry &lt;</string>
-    </property>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>50</x>
-      <y>380</y>
-      <width>521</width>
-      <height>161</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="tabHolder"/>
-   </widget>
-   <widget class="QPushButton" name="addEntryBtn">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>70</y>
-      <width>121</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Add Entry to End</string>
-    </property>
+    <widget class="QSlider" name="plotSlider">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>30</y>
+       <width>491</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>0</number>
+     </property>
+     <property name="maximum">
+      <number>0</number>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
+     </property>
+     <property name="tickPosition">
+      <enum>QSlider::TicksBothSides</enum>
+     </property>
+     <property name="tickInterval">
+      <number>1</number>
+     </property>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>530</x>
+       <y>20</y>
+       <width>164</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QPushButton" name="insertEntryBtn">
+        <property name="text">
+         <string>Insert Story Beat at Cursor</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="addEntryBtn">
+        <property name="text">
+         <string>Add Story Beat to End</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="text">
+         <string>Edit Beat</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>180</x>
+       <y>60</y>
+       <width>241</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QPushButton" name="moveEntryLeftBtn">
+        <property name="text">
+         <string>move beat &lt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="moveEntryRightBtn">
+        <property name="text">
+         <string>move beat &gt;</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="gridLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>130</y>
+       <width>691</width>
+       <height>291</height>
+      </rect>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="1" column="0">
+       <widget class="QPlainTextEdit" name="prevTextEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPlainTextEdit" name="nowTextEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QPlainTextEdit" name="nextTextEdit">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="plainText">
+         <string>to be continued...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Previously</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Synopsis</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Up Next</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>430</y>
+       <width>691</width>
+       <height>241</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="tabHolder"/>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -216,7 +292,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1115</width>
+     <width>1101</width>
      <height>26</height>
     </rect>
    </property>

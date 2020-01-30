@@ -158,15 +158,13 @@ class Story_Object(object):
         self.is_dirty = True
 
 
-    def create_empty_entry(self, char_ID, append=True, x=0):
+    def create_empty_entry(self, char_ID, beat_index=0):
         '''
         insert a placeholder entry for the specified character.
         If append is false, insert into the space indicated with "x"
         '''
-        if len(self.data["beats"]) == 0:
-            self.data["beats"].append(self.beat_object())
         if append == False:
-            self.data["beats"][x]["characters"][char_ID] = self.entry_object(char_ID)
+            self.data["beats"][beat_index]["characters"][char_ID] = self.entry_object(char_ID)
         else:
             self.data["beats"][-1]["characters"][char_ID] = self.entry_object(char_ID)
 

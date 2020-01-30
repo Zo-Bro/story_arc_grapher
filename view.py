@@ -15,7 +15,7 @@ from model import UUID
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QFileDialog
-import pyqtgraph as pyqtgraph
+#import pyqtgraph as pyqtgraph
 
 actions = ['heal', 'wound', 'kill', 'betray', 'defend', 'immobilize', 'condemn', 'beg']
 emotions = ['happy', 'sad', 'furious', 'motivated', 'disgusted']
@@ -35,6 +35,7 @@ Ui_AddCharacterWindow, QtBaseClass = uic.loadUiType(add_char_ui_file)
 Ui_EditCharacterWindow, QtBaseClass = uic.loadUiType(edit_char_ui_file)
 Ui_AddEntryWindow, QtBaseClass = uic.loadUiType(add_entry_ui_file)
 
+
 class View(QtWidgets.QMainWindow, Ui_MainWindow):
     '''
     App Name: Storiograph
@@ -53,6 +54,12 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def set_controller(self, controller):
         self.controller = controller
+
+    def connect_signals(self):
+        """
+
+        :return:
+        """
 
     def new(self):
         '''
@@ -78,14 +85,24 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         '''
         self.refresh_character_view(data)
         self.refresh_beat_view(data)
-        pass
+        self.refresh_synopsis_view(data)
 
     def refresh_character_view(self, data):
-        pass
+        for x in range(0, self.characterList.count() + 1):
+            self.characterList.takeItem(x)
+        name_list = []
+        for key, value in data['characters'].items():
+            name_list.append((value['name'], key))
+        sorted_name_list = sorted(name_list, key=lambda x: x[0])
+        for name_uuid in sorted_name_list:
+            temp_widget = CharListWidgetItem(name_uuid[0], uuid=name_uuid[1])
+            self.characterList.addItem(temp_widget)
 
     def refresh_beat_view(self, data):
-        self.plotSlider.setMaximum(len(data["beats"]))
-        pass
+        if len(data["beats"]) > 1:
+            self.plotSlider.setMaximum(len(data["beats"])-1)
+        else:
+            self.plotSlider.setMaximum(0)
 
     def graph_styling(self, grid_x=True, grid_y=True, **kwargs):
         '''
@@ -117,6 +134,42 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
             name = y_axis_per_character.index()
             self.graphWidget.plot(x_axis, char, ) # x, y, legend, color
         pass
+
+    def refresh_synopsis_view(self, data):
+        '''
+        show what is happening before, now , and next in the story
+        based on the position of the plotSlider
+        data = the data variable of a model.StoryObject
+        '''
+        # prep vars
+        if len(data["beats"]) == 0:
+            return
+        prev_entry = True
+        next_entry = True
+        slider_val = self.plotSlider.value()
+        # check if the plot slider is at max or min position
+        # so we know whether prev or next text exists in data
+        if slider_val == 0:
+            prev_entry = False
+        else:
+            prev_entry_val = slider_val -1
+
+        # slider value starts at 1, beats len starts at 1
+        if slider_val == len(data["beats"])-1:
+            next_entry = False
+        else:
+            next_entry_val = slider_val + 1
+
+        # edit the text widgets based on availability of data
+        if prev_entry:
+            self.prevTextEdit.setPlainText(data["beats"][prev_entry_val]["synopsis"])
+        else:
+            self.prevTextEdit.setPlainText("")
+        if next_entry:
+            self.nextTextEdit.setPlainText(data["beats"][next_entry_val]["synopsis"])
+        else:
+            self.nextTextEdit.setPlainText("")
+        self.nowTextEdit.setPlainText(data["beats"][slider_val]["synopsis"])
 
     def new_entry_window(self):
         pass
@@ -326,28 +379,35 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         self.layout = QtWidgets.QVBoxLayout(self)
         self.tabWidget = QtWidgets.QTabWidget()
         self.tabs = []
-
-        for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
-            name = self.view.controller.model.data["characters"][str(char_uuid)]["name"]
-            self.tabs.append((self.create_character_tab(char_data), name))
-
+        if len(data["beats"]):
+            for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
+                name = data["characters"][str(char_uuid)]["name"]
+                self.tabs.append((self.create_character_tab(entry_character_data = char_data), name))
+        else:
+            for char_uuid, char_data in data["characters"].items():
+                name = char_data["name"]
+                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"]), name))
         for tab in self.tabs:
             self.tabWidget.addTab(tab[0], tab[1])
 
         self.layout.addWidget(self.tabWidget)
         self.setLayout(self.layout)
 
-    def create_character_tab(self, entry_character_data):
+    def create_character_tab(self, entry_character_data=None, char_uuid=int):
         """
         create a character tab, and return the reference to the tab
         Each character tab contains the character's name
         and the entry text for the specified entry_num
         """
         tab = QtWidgets.QWidget()
-        tab.uuid = entry_character_data["uuid"]
         tab.layout = QtWidgets.QVBoxLayout(tab)
         tab.entryTextEdit = QtWidgets.QPlainTextEdit()
         tab.layout.addWidget(tab.entryTextEdit)
-        tab.entryTextEdit.setPlainText(entry_character_data["notes_list"][0])
+        if entry_character_data:
+            tab.uuid = entry_character_data["uuid"]
+            tab.entryTextEdit.setPlainText(entry_character_data["notes_list"][0])
+        else:
+            tab.uuid = char_uuid
+            tab.entryTextEdit.setPlainText("")
         tab.setLayout(tab.layout)
         return tab

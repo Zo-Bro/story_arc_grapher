@@ -6,14 +6,14 @@
 			"color_theme":[1,1,1],
 			"save_dir":"path\\to\\save\\file.json",
 			"scale_dict":{},
-			"characters":[
-							{
-							"name":"Bob",
-							"uuid":"123-123-123",
-							"profile-pic":".\\relative\\path.jpg",
-							"character_sheet":".\\relative\\path.json"
-							}
-						],
+			"characters": {
+				"123-123-123": {
+					"name": "Bob",
+					"uuid": "123-123-123",
+					"profile-pic": ".\\relative\\path.jpg",
+					"character_sheet": ".\\relative\\path.json"
+				}
+			},
 			"beats": [
 						{
 						"synopsis": "bob finds out karen is sleeping with brent",
