@@ -57,7 +57,7 @@ class Controller(QtCore.QObject):
         opens the window for creating a new character
         '''
         if hasattr(self.view, 'char_window'):
-            if self.view.char_window is not None:
+                self.view.char_window.refresh_view()
                 self.view.char_window.show()
         else:
             self.view.add_character_window()
@@ -65,14 +65,24 @@ class Controller(QtCore.QObject):
     def edit_character_view(self):
 
         if hasattr(self.view, 'edit_char_window'):
-            if self.view.edit_char_window is not None:
-                self.view.edit_char_window.show()
+            self.view.edit_char_window.refresh_view()
+            self.view.edit_char_window.show()
         else:
             self.view.edit_character_window()
             
-    def add_character_to_model(self, data):
-        self.model.add_character(data)
+    def add_character_to_model(self, char_data):
+        """
+
+        :param char_data:
+        :return:
+        """
+        self.model.add_character(char_data)
         self.view.char_window.close()
+        #create empty entries for all characters that dont have them.
+        for char_uuid, char_data in self.model.data['characters'].items():
+            for beat_index in range(0, len(self.model.data["beats"])):
+                if char_uuid not in self.model.data["beats"][beat_index]["characters"].keys():
+                    self.model.create_empty_entry(char_uuid, beat_index)
         self.refresh_view()
 
     def edit_character_in_model(self, data):
@@ -88,30 +98,46 @@ class Controller(QtCore.QObject):
         entry_value = self.view.plotSlider.value()
         self.view.edit_entry_window(append = False, x=entry_value)
 
-    def add_beat_to_end_view(self):
-        # before we add new beats, lets just make sure all characters have a beat
-        # this can occur if a new character is made in the middle of a project
+    def insert_beat_view(self):
         if self.model.data["characters"]:
-            for char_uuid, char_data in self.model.data['characters'].items():
-                for beat_index in range( 0, len(self.model.data["beats"])):
-                    if char_uuid not in self.model.data["beats"][beat_index]["characters"].keys():
-                        self.model.create_empty_entry(char_uuid, beat_index)
-            beat_num = self.view.plotSlider.maximum()
-            self.view.add_entry_to_end_window(beat_num)
+            # update the plot slider to the new beat number
+            beat_num = self.view.plotSlider.value()
+            # open the beat view
+            if hasattr(self.view, 'insert_beat_window'):
+                self.view.insert_beat_window.refresh_view()
+            self.view.add_beat_to_end_window(beat_num)
         else:
             self.message_box(title="No Characters Exist",
                              message="Please create at least one character before adding an entry",
                              icon="warning"
                              )
 
-    def add_entry_to_end_model(self, data):
-        self.model.add_beat(data, append=True)
-        self.view.entry_window.close()
-        self.view.refresh_view(self.model.data)
-        pass
 
-    def insert_entry_view(self):
-        pass
+    def add_beat_to_end_view(self):
+
+        if self.model.data["characters"]:
+            # update the plot slider to the new beat number
+            beat_num = self.view.plotSlider.maximum()
+            # open the beat view
+            if hasattr(self.view, 'beat_window'):
+                self.view.beat_window.refresh_view()
+            self.view.add_beat_to_end_window(beat_num)
+        else:
+            self.message_box(title="No Characters Exist",
+                             message="Please create at least one character before adding an entry",
+                             icon="warning"
+                             )
+
+    def add_beat_to_end_model(self, beat_data):
+        """
+
+        :param beat_data: a dict that contains beat data (see model.beat_entry)
+        :return:
+        """
+        self.model.add_beat(beat_data, append=True)
+        self.view.beat_window.close()
+        self.view.refresh_view(self.model.data)
+
 
     def refresh_view(self):
         '''

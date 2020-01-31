@@ -82,6 +82,12 @@
       <height>661</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
     <property name="title">
      <string>Characters</string>
     </property>
@@ -227,21 +233,57 @@
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="1" column="0">
+      <item row="2" column="0">
        <widget class="QPlainTextEdit" name="prevTextEdit">
         <property name="enabled">
          <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="text">
+         <string>Synopsis</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label">
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="text">
+         <string>Previously</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QLabel" name="label_3">
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="text">
+         <string>Up Next</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
        <widget class="QPlainTextEdit" name="nowTextEdit">
         <property name="enabled">
          <bool>false</bool>
         </property>
        </widget>
       </item>
-      <item row="1" column="2">
+      <item row="2" column="2">
        <widget class="QPlainTextEdit" name="nextTextEdit">
         <property name="enabled">
          <bool>false</bool>
@@ -251,24 +293,42 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
+      <item row="1" column="0">
+       <widget class="QLabel" name="prevNameLabel">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Previously</string>
+         <string/>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="label_2">
+      <item row="1" column="1">
+       <widget class="QLabel" name="nowNameLabel">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Synopsis</string>
+         <string/>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="label_3">
+      <item row="1" column="2">
+       <widget class="QLabel" name="nextNameLabel">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Up Next</string>
+         <string/>
         </property>
        </widget>
       </item>

@@ -162,29 +162,33 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # edit the text widgets based on availability of data
         if prev_entry:
+            self.prevNameLabel.setText(data["beats"][prev_entry_val]["name"])
             self.prevTextEdit.setPlainText(data["beats"][prev_entry_val]["synopsis"])
         else:
+            self.prevNameLabel.setText("...")
             self.prevTextEdit.setPlainText("")
         if next_entry:
+            self.nextNameLabel.setText(data["beats"][next_entry_val]["name"])
             self.nextTextEdit.setPlainText(data["beats"][next_entry_val]["synopsis"])
         else:
+            self.nextNameLabel.setText("...")
             self.nextTextEdit.setPlainText("")
+        self.nowNameLabel.setText(data["beats"][slider_val]["name"])
         self.nowTextEdit.setPlainText(data["beats"][slider_val]["synopsis"])
 
-    def new_entry_window(self):
-        pass
+    def insert_beat_window(self, beat_num):
+        self.insert_beat_window = AddEntryView(view = self, beat_num=beat_num)
+        self.insert_beat_window.send_entry_data.connect(self.controller.insert_beat_in_model)
+        self.insert_beat_window.canceled.connect(self.controller.cancel)
+        self.insert_beat_window.show()
+        return self.insert_beat_window
 
-    def add_entry_to_end_window(self, beat_num):
-        self.entry_window = AddEntryView(view = self, beat_num=beat_num)
-
-        self.entry_window.send_entry_data.connect(self.controller.add_entry_to_end_model)
-        self.entry_window.canceled.connect(self.controller.cancel)
-        self.entry_window.show()
-        return self.entry_window
-
-
-
-        pass
+    def add_beat_to_end_window(self, beat_num):
+        self.beat_window = AddEntryView(view = self, beat_num=beat_num)
+        self.beat_window.send_entry_data.connect(self.controller.add_beat_to_end_model)
+        self.beat_window.canceled.connect(self.controller.cancel)
+        self.beat_window.show()
+        return self.beat_window
 
     def edit_entry_window(self, entry_int):
         pass
@@ -205,7 +209,6 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         returns the window object.
         '''
         self.char_window = AddCharacterView(view = self)
-
         self.char_window.send_character_data.connect(self.controller.add_character_to_model)
         self.char_window.canceled.connect(self.controller.cancel)
         self.char_window.show()
@@ -235,7 +238,7 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
             return load_data
 
         except AssertionError:
-            logging.debug("File type for save data to load is not .json")
+            logging.debug("File type for save data to load must be .json")
             return None
         pass
 
@@ -264,6 +267,11 @@ class AddCharacterView(QtWidgets.QWidget, Ui_AddCharacterWindow):
 
         def cancel(self):
             self.canceled.emit(self)
+
+        def refresh_view(self):
+            self.nameLineEdit.setText("")
+            self.ageLineEdit.setText("")
+            self.descTextEdit.clear()
 
 
 class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
@@ -297,6 +305,11 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
 
     def cancel(self):
         self.canceled_signal.emit(self)
+
+    def refresh_view(self):
+        self.nameLineEdit.setText("")
+        self.ageLineEdit.setText("")
+        self.descTextEdit.clear()
 
 
 class AddEntryView(QtWidgets.QWidget, Ui_AddEntryWindow):
@@ -332,14 +345,25 @@ class AddEntryView(QtWidgets.QWidget, Ui_AddEntryWindow):
             temp_text = tab.entryTextEdit.toPlainText()
             text_per_character.append((tab.uuid, temp_text))
         self.data = {}
+        self.data["name"] = self.nameLineEdit.text()
         self.data["synopsis"] = self.synopsisTextEdit.toPlainText()
         self.data["uuid"] = UUID()
         self.data["characters"]= {}
         for uuid, text in text_per_character:
             self.data["characters"][str(uuid)] = {"uuid":uuid, "scale_list":[0], "notes_list":[text]}
         self.send_entry_data.emit(self.data)
+
     def cancel(self):
         self.canceled.emit(self)
+
+    def refresh_view(self):
+        #self.beat_num = beat_num
+        self.nameLineEdit.setText("")
+        self.synopsisTextEdit.clear()
+        self.tabHolder.removeWidget(self.tabWidget)
+        self.create_character_widgets()
+
+
 
 
 

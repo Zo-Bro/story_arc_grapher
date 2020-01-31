@@ -40,23 +40,16 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>50</y>
-     <width>721</width>
+     <y>10</y>
+     <width>741</width>
      <height>231</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_3">
+    <item row="0" column="1">
+     <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>Previously</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
-     <widget class="QPlainTextEdit" name="plainTextEdit">
-      <property name="enabled">
-       <bool>false</bool>
+       <string>Up Next</string>
       </property>
      </widget>
     </item>
@@ -67,10 +60,17 @@
       </property>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QLabel" name="label_4">
+    <item row="1" column="0">
+     <widget class="QPlainTextEdit" name="plainTextEdit">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_3">
       <property name="text">
-       <string>Up Next</string>
+       <string>Previously</string>
       </property>
      </widget>
     </item>
@@ -115,24 +115,6 @@
     <string>Cancel</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>356</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>12</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>ENTRY NAME</string>
-   </property>
-  </widget>
   <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
@@ -143,6 +125,33 @@
     </rect>
    </property>
    <layout class="QVBoxLayout" name="tabHolder"/>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>250</y>
+     <width>741</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QLabel" name="label_5">
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>ENTRY NAME</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="nameLineEdit"/>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

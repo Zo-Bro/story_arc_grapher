@@ -16,6 +16,7 @@
 			},
 			"beats": [
 						{
+							"name": "",
 						"synopsis": "bob finds out karen is sleeping with brent",
 						"uuid": 56565,
 						"characters": {

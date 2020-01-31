@@ -180,6 +180,7 @@ class Story_Object(object):
 
     def beat_object(self):
         data = {}
+        data["name"] = ""
         data["synopsis"] = ""
         data["uuid"] = UUID()
         data["characters"] = {}
