@@ -50,6 +50,8 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         QtWidgets.QMainWindow.__init__(self)
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
+        self.tabWidget = EntryPerCharWidget(view=self)
+        self.tabHolder.addWidget(self.tabWidget)
         
 
     def set_controller(self, controller):
@@ -76,6 +78,7 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         '''
         the standard view of the first character and one scale, if either exist
         '''
+
         pass
 
     def refresh_view(self, data):
@@ -88,8 +91,12 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         self.refresh_synopsis_view(data)
 
     def refresh_character_view(self, data):
-        for x in range(0, self.characterList.count() + 1):
-            self.characterList.takeItem(x)
+
+        #take all items
+        # for x in range(0, self.characterList.count() + 1):
+        #     self.characterList.takeItem(x)
+        #     print(self.characterList.count())
+        self.characterList.clear()
         name_list = []
         for key, value in data['characters'].items():
             name_list.append((value['name'], key))
@@ -175,16 +182,18 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
             self.nextTextEdit.setPlainText("")
         self.nowNameLabel.setText(data["beats"][slider_val]["name"])
         self.nowTextEdit.setPlainText(data["beats"][slider_val]["synopsis"])
+        self.tabWidget.refresh_view(data, slider_val)
+
 
     def insert_beat_window(self, beat_num):
-        self.insert_beat_window = AddEntryView(view = self, beat_num=beat_num)
+        self.insert_beat_window = AddBeatView(view = self, beat_num=beat_num)
         self.insert_beat_window.send_entry_data.connect(self.controller.insert_beat_in_model)
         self.insert_beat_window.canceled.connect(self.controller.cancel)
         self.insert_beat_window.show()
         return self.insert_beat_window
 
     def add_beat_to_end_window(self, beat_num):
-        self.beat_window = AddEntryView(view = self, beat_num=beat_num)
+        self.beat_window = AddBeatView(view = self, beat_num=beat_num)
         self.beat_window.send_entry_data.connect(self.controller.add_beat_to_end_model)
         self.beat_window.canceled.connect(self.controller.cancel)
         self.beat_window.show()
@@ -312,7 +321,7 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
         self.descTextEdit.clear()
 
 
-class AddEntryView(QtWidgets.QWidget, Ui_AddEntryWindow):
+class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
     send_entry_data = pyqtSignal(dict)
     canceled = pyqtSignal(QtWidgets.QWidget)
 
@@ -332,7 +341,6 @@ class AddEntryView(QtWidgets.QWidget, Ui_AddEntryWindow):
     def create_character_widgets(self):
         self.tabWidget = EntryPerCharWidget(view=self.view, data=self.view.controller.model.data, beat_num=self.beat_num)
         self.tabHolder.addWidget(self.tabWidget)
-
 
     def create_entry(self):
         """
@@ -360,7 +368,7 @@ class AddEntryView(QtWidgets.QWidget, Ui_AddEntryWindow):
         #self.beat_num = beat_num
         self.nameLineEdit.setText("")
         self.synopsisTextEdit.clear()
-        self.tabHolder.removeWidget(self.tabWidget)
+        self.tabWidget.tabWidget.clear()
         self.create_character_widgets()
 
 
@@ -382,7 +390,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
     A separate implementation of this will make one tab per entry for a single character.
 
     """
-    def __init__(self, *args, view=None, data=None, beat_num=None, **kwargs):
+    def __init__(self, *args, view=None, data=None, beat_num=0, **kwargs):
         """
         data = the entire JSON data contained in the model
         beat_num = the integer for the entry to display
@@ -391,18 +399,26 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         super().__init__(*args, **kwargs)
         self.view = view
         self.beat_num = beat_num
-        self.create_tabWidget(data)
-
-
-    def create_tabWidget(self, data):
-        """
-        create the entire tabwidget
-        sets everything to self, so it can be easily referenced
-
-        """
         self.layout = QtWidgets.QVBoxLayout(self)
         self.tabWidget = QtWidgets.QTabWidget()
+        self.layout.addWidget(self.tabWidget)
+        self.setLayout(self.layout)
+        self.tabs_index = {}
         self.tabs = []
+        if data:
+            self.create_tabWidget(data)
+
+
+    def create_tabWidget(self, data=None):
+        """
+        create the entire tabwidget
+        iterates through the entries in a beat and adds a tab for each one it finds
+
+        sets everything to self, so it can be easily referenced
+        """
+        self.tabs = []
+        self.tabs_index = {}
+
         if len(data["beats"]):
             for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
                 name = data["characters"][str(char_uuid)]["name"]
@@ -414,10 +430,8 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         for tab in self.tabs:
             self.tabWidget.addTab(tab[0], tab[1])
 
-        self.layout.addWidget(self.tabWidget)
-        self.setLayout(self.layout)
 
-    def create_character_tab(self, entry_character_data=None, char_uuid=int):
+    def create_character_tab(self, entry_character_data=None, char_uuid=str):
         """
         create a character tab, and return the reference to the tab
         Each character tab contains the character's name
@@ -434,4 +448,46 @@ class EntryPerCharWidget(QtWidgets.QWidget):
             tab.uuid = char_uuid
             tab.entryTextEdit.setPlainText("")
         tab.setLayout(tab.layout)
+        self.tabs_index[char_uuid]: len(self.tabs)
         return tab
+
+    def refresh_view(self, data, beat_num):
+        #self.layout = QtWidgets.QVBoxLayout(self)
+        #self.tabWidget = QtWidgets.QTabWidget()
+        #self.tabs = []
+        self.beat_num = beat_num
+        self.tabWidget.clear()
+        for char_uuid, char_data in data["characters"].items():
+            name = char_data["name"]
+            char_entry_data = data["beats"][self.beat_num]["characters"][char_uuid]
+            if char_uuid in self.tabs_index.keys():
+                char_tab_index = self.tab_index[char_uuid]
+                self.tabs[char_tab_index].entryTextEdit.setPlainText(char_entry_data["notes_list"][0])
+            #a new character was added since last time.
+            else:
+                new_tab = self.create_character_tab(entry_character_data=char_entry_data, char_uuid = char_uuid)
+                self.tabs.append((new_tab, name))
+                self.tabWidget.addTab(self.tabs[-1][0], self.tabs[-1][1])
+
+
+
+
+
+        if len(data["beats"]):
+            for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
+                name = data["characters"][str(char_uuid)]["name"]
+                self.tabs.append((self.create_character_tab(entry_character_data = char_data), name))
+        else:
+            for char_uuid, char_data in data["characters"].items():
+                name = char_data["name"]
+                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"]), name))
+        for tab in self.tabs:
+            self.tabWidget.addTab(tab[0], tab[1])
+
+        self.layout.addWidget(self.tabWidget)
+        self.setLayout(self.layout)
+
+def index_dict(dict):
+    """
+    this could be a decorator that indexes a dict entry
+    """

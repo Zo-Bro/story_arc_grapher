@@ -46,6 +46,7 @@ class Controller(QtCore.QObject):
         self.view.newBtn.clicked.connect(self.new)
         self.view.saveBtn.clicked.connect(self.save_data)
         self.view.newCharBtn.clicked.connect(self.add_character_view)
+
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
         self.view.addEntryBtn.clicked.connect(self.add_beat_to_end_view)
         self.view.plotSlider.valueChanged.connect(lambda: self.view.refresh_synopsis_view(self.model.data))
@@ -183,6 +184,7 @@ class Controller(QtCore.QObject):
                 return
         else:
             self.model.start_up()
+            self.view.refresh_view(self.model.data)
             return
 
     def save_prompt(self):
@@ -231,7 +233,6 @@ class Controller(QtCore.QObject):
         if type(save_dir) == str:
             self.model.load_data(save_dir)
             self.view.clear()
-            self.view.default_view()
             self.refresh_view()
         elif type(save_dir) == type(None):
             #message box stating load data is not valid.

@@ -224,4 +224,4 @@ class Character_Object(object):
 
 def UUID():
     temp_uuid = uuid.uuid1()
-    return temp_uuid.int
+    return str(temp_uuid.int)
