@@ -121,7 +121,7 @@ class Controller(QtCore.QObject):
             beat_num = self.view.plotSlider.maximum()
             # open the beat view
             if hasattr(self.view, 'beat_window'):
-                self.view.beat_window.refresh_view()
+                self.view.beat_window.refresh_view(self.model.data)
             self.view.add_beat_to_end_window(beat_num)
         else:
             self.message_box(title="No Characters Exist",

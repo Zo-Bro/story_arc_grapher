@@ -363,12 +363,52 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
 
     def cancel(self):
         self.canceled.emit(self)
+    def refresh_synopsis_view(self, data):
+        '''
+        show what is happening before, now , and next in the story
+        based on the position of the plotSlider
+        data = the data variable of a model.StoryObject
+        '''
+        # prep vars
+        if len(data["beats"]) == 0:
+            return
+        prev_entry = True
+        next_entry = True
+        slider_val = self.view.plotSlider.value()
+        # check if the plot slider is at max or min position
+        # so we know whether prev or next text exists in data
+        if slider_val == 0:
+            prev_entry = False
+        else:
+            prev_entry_val = slider_val -1
 
-    def refresh_view(self):
+        # slider value starts at 1, beats len starts at 1
+        if slider_val == len(data["beats"])-1:
+            next_entry = False
+        else:
+            next_entry_val = slider_val + 1
+
+        # edit the text widgets based on availability of data
+        if prev_entry:
+            self.prevNameLabel.setText(data["beats"][prev_entry_val]["name"])
+            self.prevTextEdit.setPlainText(data["beats"][prev_entry_val]["synopsis"])
+        else:
+            self.prevNameLabel.setText("...")
+            self.prevTextEdit.setPlainText("")
+        if next_entry:
+            self.nextNameLabel.setText(data["beats"][next_entry_val]["name"])
+            self.nextTextEdit.setPlainText(data["beats"][next_entry_val]["synopsis"])
+        else:
+            self.nextNameLabel.setText("...")
+            self.nextTextEdit.setPlainText("")
+
+    def refresh_view(self, data):
         #self.beat_num = beat_num
         self.nameLineEdit.setText("")
         self.synopsisTextEdit.clear()
-        self.tabWidget.tabWidget.clear()
+        self.tabWidget.
+        self.tabWidget.clear_view()
+        self.refresh_synopsis_view(data)
         self.create_character_widgets()
 
 
@@ -403,7 +443,6 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         self.tabWidget = QtWidgets.QTabWidget()
         self.layout.addWidget(self.tabWidget)
         self.setLayout(self.layout)
-        self.tabs_index = {}
         self.tabs = []
         if data:
             self.create_tabWidget(data)
@@ -417,16 +456,15 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         sets everything to self, so it can be easily referenced
         """
         self.tabs = []
-        self.tabs_index = {}
 
         if len(data["beats"]):
             for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
                 name = data["characters"][str(char_uuid)]["name"]
-                self.tabs.append((self.create_character_tab(entry_character_data = char_data), name))
+                self.tabs.append((self.create_character_tab(entry_character_data = char_data), name, char_uuid))
         else:
             for char_uuid, char_data in data["characters"].items():
                 name = char_data["name"]
-                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"]), name))
+                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"]), name, char_data["uuid"]))
         for tab in self.tabs:
             self.tabWidget.addTab(tab[0], tab[1])
 
@@ -448,7 +486,6 @@ class EntryPerCharWidget(QtWidgets.QWidget):
             tab.uuid = char_uuid
             tab.entryTextEdit.setPlainText("")
         tab.setLayout(tab.layout)
-        self.tabs_index[char_uuid]: len(self.tabs)
         return tab
 
     def refresh_view(self, data, beat_num):
@@ -457,37 +494,20 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         #self.tabs = []
         self.beat_num = beat_num
         self.tabWidget.clear()
+        char_uuid_on_file = [tab[2] for tab in self.tabs]
         for char_uuid, char_data in data["characters"].items():
             name = char_data["name"]
             char_entry_data = data["beats"][self.beat_num]["characters"][char_uuid]
-            if char_uuid in self.tabs_index.keys():
-                char_tab_index = self.tab_index[char_uuid]
-                self.tabs[char_tab_index].entryTextEdit.setPlainText(char_entry_data["notes_list"][0])
+            if char_uuid in char_uuid_on_file:
+                char_tab_index = char_uuid_on_file.index(char_uuid)
+                self.tabs[char_tab_index][0].entryTextEdit.setPlainText(char_entry_data["notes_list"][0])
             #a new character was added since last time.
             else:
                 new_tab = self.create_character_tab(entry_character_data=char_entry_data, char_uuid = char_uuid)
-                self.tabs.append((new_tab, name))
+                self.tabs.append((new_tab, name, char_uuid))
                 self.tabWidget.addTab(self.tabs[-1][0], self.tabs[-1][1])
 
-
-
-
-
-        if len(data["beats"]):
-            for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
-                name = data["characters"][str(char_uuid)]["name"]
-                self.tabs.append((self.create_character_tab(entry_character_data = char_data), name))
-        else:
-            for char_uuid, char_data in data["characters"].items():
-                name = char_data["name"]
-                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"]), name))
+    def clear_view(self):
         for tab in self.tabs:
-            self.tabWidget.addTab(tab[0], tab[1])
+                tab[0].entryTextEdit.clear()
 
-        self.layout.addWidget(self.tabWidget)
-        self.setLayout(self.layout)
-
-def index_dict(dict):
-    """
-    this could be a decorator that indexes a dict entry
-    """

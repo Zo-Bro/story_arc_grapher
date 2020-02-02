@@ -53,24 +53,38 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="QPlainTextEdit" name="plainTextEdit_2">
+    <item row="0" column="0">
+     <widget class="QLabel" name="label_3">
+      <property name="text">
+       <string>Previously</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0">
+     <widget class="QPlainTextEdit" name="prevTextEdit">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QPlainTextEdit" name="nextTextEdit">
       <property name="enabled">
        <bool>false</bool>
       </property>
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QPlainTextEdit" name="plainTextEdit">
-      <property name="enabled">
-       <bool>false</bool>
+     <widget class="QLabel" name="prevNameLabel">
+      <property name="text">
+       <string>TextLabel</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_3">
+    <item row="1" column="1">
+     <widget class="QLabel" name="NextNameLabel">
       <property name="text">
-       <string>Previously</string>
+       <string>TextLabel</string>
       </property>
      </widget>
     </item>
