@@ -18,7 +18,7 @@ import math
 import json
 import logging
 import uuid
-
+import os
 actions = ['heal', 'wound', 'kill', 'betray', 'defend', 'immobilize', 'condemn', 'beg']
 emotions = ['happy', 'sad', 'furious', 'motivated', 'disgusted']
 energy_level_list = ['manic', 'excited', 'neutral', 'sluggish', 'lethargic']
@@ -88,6 +88,17 @@ class Story_Object(object):
         '''
         # if a save path was provided, save there
         if save_dir:
+            # ensure the save path is valid
+            try:
+                folder = os.path.split(save_dir[0])
+                assert os.path.exists(folder)
+            except AssertionError:
+                return "not_exist"
+            try:
+                assert save_dir.endswith(".json")
+            except AssertionError:
+                return "wrong_type"
+
             logging.info("new save path provided. Writing to new location")
             self.data['save_dir'] = save_dir
             json_data = json.dumps(self.data, indent=4)
@@ -96,6 +107,7 @@ class Story_Object(object):
                 dest_file.write(json_data)
             self.is_dirty = False
             self.save_dir = self.data['save_dir']
+            return "success"
         # if no save path was provided and this Story doesnt have a save path yet
         elif self.save_dir is None:
             logging.warning("no save path provided and story object has no existing save path")
@@ -105,9 +117,8 @@ class Story_Object(object):
             json_data = json.dumps(self.data, indent=4)
             with open(self.save_dir, 'w') as dest_file:
                 dest_file.write(json_data)
-
-
             self.is_dirty = False
+            return "success"
 
     def add_character(self, data):
         '''

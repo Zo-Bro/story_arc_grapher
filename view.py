@@ -184,7 +184,6 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         self.nowTextEdit.setPlainText(data["beats"][slider_val]["synopsis"])
         self.tabWidget.refresh_view(data, slider_val)
 
-
     def insert_beat_window(self, beat_num):
         self.insert_beat_window = AddBeatView(view = self, beat_num=beat_num)
         self.insert_beat_window.send_entry_data.connect(self.controller.insert_beat_in_model)
@@ -193,7 +192,7 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         return self.insert_beat_window
 
     def add_beat_to_end_window(self, beat_num):
-        self.beat_window = AddBeatView(view = self, beat_num=beat_num)
+        self.beat_window = AddBeatView(view=self, beat_num=beat_num)
         self.beat_window.send_entry_data.connect(self.controller.add_beat_to_end_model)
         self.beat_window.canceled.connect(self.controller.cancel)
         self.beat_window.show()
@@ -363,27 +362,29 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
 
     def cancel(self):
         self.canceled.emit(self)
-    def refresh_synopsis_view(self, data):
+
+    def refresh_synopsis_view(self, data, beat_num):
         '''
         show what is happening before, now , and next in the story
         based on the position of the plotSlider
         data = the data variable of a model.StoryObject
+        beat_num =
         '''
         # prep vars
         if len(data["beats"]) == 0:
             return
         prev_entry = True
         next_entry = True
-        slider_val = self.view.plotSlider.value()
+        slider_val = beat_num
         # check if the plot slider is at max or min position
         # so we know whether prev or next text exists in data
         if slider_val == 0:
             prev_entry = False
         else:
-            prev_entry_val = slider_val -1
+            prev_entry_val = slider_val - 1
 
-        # slider value starts at 1, beats len starts at 1
-        if slider_val == len(data["beats"])-1:
+        # slider value starts at 0, beats len starts at 1
+        if slider_val == len(data["beats"]) - 1:
             next_entry = False
         else:
             next_entry_val = slider_val + 1
@@ -402,15 +403,11 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
             self.nextNameLabel.setText("...")
             self.nextTextEdit.setPlainText("")
 
-    def refresh_view(self, data):
-        #self.beat_num = beat_num
+    def refresh_view(self, data, beat_num):
         self.nameLineEdit.setText("")
         self.synopsisTextEdit.clear()
-        self.tabWidget.
-        self.tabWidget.clear_view()
-        self.refresh_synopsis_view(data)
-        self.create_character_widgets()
-
+        self.tabWidget.clear_all_tab_text()
+        self.refresh_synopsis_view(data, beat_num)
 
 
 
@@ -445,12 +442,11 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
         self.tabs = []
         if data:
-            self.create_tabWidget(data)
+            self.create_character_tabs(data)
 
-
-    def create_tabWidget(self, data=None):
+    def create_character_tabs(self, data=None):
         """
-        create the entire tabwidget
+        create all the tabs in the tabwidget
         iterates through the entries in a beat and adds a tab for each one it finds
 
         sets everything to self, so it can be easily referenced
@@ -467,7 +463,6 @@ class EntryPerCharWidget(QtWidgets.QWidget):
                 self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"]), name, char_data["uuid"]))
         for tab in self.tabs:
             self.tabWidget.addTab(tab[0], tab[1])
-
 
     def create_character_tab(self, entry_character_data=None, char_uuid=str):
         """
@@ -494,20 +489,9 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         #self.tabs = []
         self.beat_num = beat_num
         self.tabWidget.clear()
-        char_uuid_on_file = [tab[2] for tab in self.tabs]
-        for char_uuid, char_data in data["characters"].items():
-            name = char_data["name"]
-            char_entry_data = data["beats"][self.beat_num]["characters"][char_uuid]
-            if char_uuid in char_uuid_on_file:
-                char_tab_index = char_uuid_on_file.index(char_uuid)
-                self.tabs[char_tab_index][0].entryTextEdit.setPlainText(char_entry_data["notes_list"][0])
-            #a new character was added since last time.
-            else:
-                new_tab = self.create_character_tab(entry_character_data=char_entry_data, char_uuid = char_uuid)
-                self.tabs.append((new_tab, name, char_uuid))
-                self.tabWidget.addTab(self.tabs[-1][0], self.tabs[-1][1])
+        self.create_character_tabs(data)
 
-    def clear_view(self):
+    def clear_all_tab_text(self):
         for tab in self.tabs:
-                tab[0].entryTextEdit.clear()
+            tab[0].entryTextEdit.clear()
 

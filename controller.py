@@ -45,6 +45,7 @@ class Controller(QtCore.QObject):
         self.view.loadBtn.clicked.connect(self.load_data)
         self.view.newBtn.clicked.connect(self.new)
         self.view.saveBtn.clicked.connect(self.save_data)
+        self.view.saveAsBtn.clicked.connect(lambda: self.save_data(force_save_as=True))
         self.view.newCharBtn.clicked.connect(self.add_character_view)
 
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
@@ -105,8 +106,10 @@ class Controller(QtCore.QObject):
             beat_num = self.view.plotSlider.value()
             # open the beat view
             if hasattr(self.view, 'insert_beat_window'):
-                self.view.insert_beat_window.refresh_view()
-            self.view.add_beat_to_end_window(beat_num)
+                self.view.insert_beat_window.refresh_view(self.model.data, beat_num)
+                self.view.insert_beat_window.show()
+                return
+            self.view.insert_beat_window(beat_num)
         else:
             self.message_box(title="No Characters Exist",
                              message="Please create at least one character before adding an entry",
@@ -121,7 +124,9 @@ class Controller(QtCore.QObject):
             beat_num = self.view.plotSlider.maximum()
             # open the beat view
             if hasattr(self.view, 'beat_window'):
-                self.view.beat_window.refresh_view(self.model.data)
+                self.view.beat_window.refresh_view(self.model.data, beat_num)
+                self.view.beat_window.show()
+                return
             self.view.add_beat_to_end_window(beat_num)
         else:
             self.message_box(title="No Characters Exist",
@@ -147,11 +152,15 @@ class Controller(QtCore.QObject):
         '''
         #update the Tab Widget
         if len(self.model.data["beats"]) > 0:
-            self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view, data = self.model.data, beat_num = self.view.plotSlider.value()))
-
+            if self.view.tabHolder.count() < 0:
+                self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view,
+                                                                      data = self.model.data,
+                                                                      beat_num = self.view.plotSlider.value()
+                                                                      )
+                                              )
+            else:
+                pass
         self.view.refresh_view(self.model.data)
-
-        pass
 
     def request_char_by_uuid(self):
         '''
@@ -239,15 +248,33 @@ class Controller(QtCore.QObject):
             # need to have a custom file type or a "save verification" so bad json doesn't get loaded
             self.message_box(title="Load File is not Valid", message="The path provided is not a valid Story Arc save file. Please try a different path", icon='warning')
 
-    def save_data(self):
-        #if a save location has been established, save there.
-        if self.model.data['save_dir']:
-            self.model.save_data()
-        #else, ask where to save and set that as the new save dir
+    def save_data(self, force_save_as=False):
+        # was the save_as button pressed?
+        if force_save_as:
+            save_dir = self.view.save_as_window()
+            if save_dir:
+                result = self.model.save_data(save_dir=save_dir)
+        # if a save location has been established, save there.
+        elif self.model.data['save_dir']:
+            result = self.model.save_data()
+        # else, ask where to save and set that as the new save dir
         else:
             save_dir = self.view.save_as_window()
             if save_dir:
-                self.model.save_data(save_dir=save_dir)
+                result = self.model.save_data(save_dir=save_dir)
+        # handle assertions
+        if result == "success":
+            return
+        elif result == "not_exist":
+            self.message_box("containing folder does not exist",
+                             "The containing folder you selected does not exist on disk.",
+                             "warning"
+                             )
+        elif result == "wrong_type":
+            self.message_box("file path given not .json",
+                             "the file path you gave does not end with '.json', and will not work",
+                             "warning"
+                             )
 
     def add_entry(self, character_uuid):
         '''
