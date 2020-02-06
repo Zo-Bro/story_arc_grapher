@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1108</width>
-    <height>814</height>
+    <width>1126</width>
+    <height>845</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -118,6 +118,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="charEntryWizBtn">
+        <property name="text">
+         <string>Character Entry Wizard</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </widget>
@@ -127,7 +134,7 @@
       <x>10</x>
       <y>80</y>
       <width>711</width>
-      <height>681</height>
+      <height>721</height>
      </rect>
     </property>
     <property name="title">
@@ -175,7 +182,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QPushButton" name="insertEntryBtn">
+       <widget class="QPushButton" name="insertBeatBtn">
         <property name="text">
          <string>Insert Story Beat after Cursor</string>
         </property>
@@ -208,14 +215,14 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QPushButton" name="moveEntryLeftBtn">
+       <widget class="QPushButton" name="moveBeatLeftBtn">
         <property name="text">
          <string>move beat &lt;</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="moveEntryRightBtn">
+       <widget class="QPushButton" name="moveBeatRightBtn">
         <property name="text">
          <string>move beat &gt;</string>
         </property>
@@ -244,7 +251,9 @@
        <widget class="QLabel" name="label_2">
         <property name="font">
          <font>
+          <weight>75</weight>
           <italic>true</italic>
+          <bold>true</bold>
          </font>
         </property>
         <property name="text">
@@ -280,6 +289,12 @@
        <widget class="QPlainTextEdit" name="nowTextEdit">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
        </widget>
       </item>
@@ -345,6 +360,41 @@
      </property>
      <layout class="QVBoxLayout" name="tabHolder"/>
     </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>670</y>
+       <width>691</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="editEntriesCheckBox">
+        <property name="text">
+         <string>Edit Entries</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="ApplyEditsBtn">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Apply Edits</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
    <widget class="QPushButton" name="saveAsBtn">
     <property name="geometry">
@@ -359,13 +409,26 @@
      <string>Save As...</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="newBtn_2">
+    <property name="geometry">
+     <rect>
+      <x>940</x>
+      <y>120</y>
+      <width>181</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Edit Character Sheet Fields</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1108</width>
+     <width>1126</width>
      <height>26</height>
     </rect>
    </property>

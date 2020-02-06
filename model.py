@@ -165,7 +165,7 @@ class Story_Object(object):
         if append:
             self.data["beats"].append(data)
         else:
-            self.data["beats"].insert(data, index)
+            self.data["beats"].insert(index, data)
         self.is_dirty = True
 
 
@@ -174,10 +174,7 @@ class Story_Object(object):
         insert a placeholder entry for the specified character.
         If append is false, insert into the space indicated with "x"
         '''
-        if append == False:
-            self.data["beats"][beat_index]["characters"][char_ID] = self.entry_object(char_ID)
-        else:
-            self.data["beats"][-1]["characters"][char_ID] = self.entry_object(char_ID)
+        self.data["beats"][beat_index]["characters"][char_ID] = self.entry_object(char_ID)
 
     def entry_object(self, uuid, scale_list = [0], notes_list = [""]):
         """

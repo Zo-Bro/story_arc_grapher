@@ -47,12 +47,49 @@ class Controller(QtCore.QObject):
         self.view.saveBtn.clicked.connect(self.save_data)
         self.view.saveAsBtn.clicked.connect(lambda: self.save_data(force_save_as=True))
         self.view.newCharBtn.clicked.connect(self.add_character_view)
-
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
         self.view.addEntryBtn.clicked.connect(self.add_beat_to_end_view)
         self.view.plotSlider.valueChanged.connect(lambda: self.view.refresh_synopsis_view(self.model.data))
-
+        self.view.moveBeatLeftBtn.clicked.connect(self.move_beat_left)
+        self.view.moveBeatRightBtn.clicked.connect(self.move_beat_right)
+        self.view.insertBeatBtn.clicked.connect(self.insert_beat_view)
         pass
+    def character_beat_wizard(self):
+        if len(self.model.data["beats"]):
+            if hasattr(self.view, "character_beat_wizard_window"):
+                pass
+            else:
+                data_beats_len = len(self.model.data["beats"])
+                self.view.character_beat_wizard(self.model.data)
+
+    def wizard_prompt(self):
+            """
+            ask how to update the character's entries
+            :return:
+            """
+
+    def move_beat_left(self):
+        logging.info("inside move_beat_left")
+        if len(self.model.data["beats"]) > 0:
+            beat_index = self.view.plotSlider.value()
+            logging.debug("beat info is {}".format(str(beat_index)))
+            if beat_index > 0:
+                logging.debug("beat_index is greater than zero")
+                beat_to_move = self.model.data["beats"].pop(beat_index)
+                self.model.data["beats"].insert(beat_index-1, beat_to_move)
+                self.refresh_view()
+
+    def move_beat_right(self):
+
+        beats_max = len(self.model.data["beats"])
+        if len(self.model.data["beats"]) > 0:
+            beat_index = self.view.plotSlider.value()
+            logging.debug("beat info is {}".format(str(beat_index)))
+            if beat_index < beats_max:
+                logging.debug("beat_index is less than max")
+                beat_to_move = self.model.data["beats"].pop(beat_index)
+                self.model.data["beats"].insert(beat_index+1, beat_to_move)
+                self.refresh_view()
 
     def add_character_view(self):
         '''
@@ -65,13 +102,20 @@ class Controller(QtCore.QObject):
             self.view.add_character_window()
 
     def edit_character_view(self):
-
-        if hasattr(self.view, 'edit_char_window'):
-            self.view.edit_char_window.refresh_view()
-            self.view.edit_char_window.show()
+        if self.view.characterList.count() > 0:
+            temp_widget = self.view.characterList.currentItem()
+            if temp_widget is not None:
+                char_data = self.model.data['characters'][temp_widget.uuid]
+                if hasattr(self.view, 'edit_char_window'):
+                    self.view.edit_char_window.refresh_view()
+                    self.view.edit_char_window.show()
+                else:
+                    self.view.edit_character_window()
+            #handle the error if someone with that uuid cannot be found: delete the entry in the listWidget.
         else:
-            self.view.edit_character_window()
-            
+            return
+
+
     def add_character_to_model(self, char_data):
         """
 
@@ -103,13 +147,13 @@ class Controller(QtCore.QObject):
     def insert_beat_view(self):
         if self.model.data["characters"]:
             # update the plot slider to the new beat number
-            beat_num = self.view.plotSlider.value()
+            beat_num = self.view.plotSlider.value() + 1
             # open the beat view
             if hasattr(self.view, 'insert_beat_window'):
                 self.view.insert_beat_window.refresh_view(self.model.data, beat_num)
                 self.view.insert_beat_window.show()
                 return
-            self.view.insert_beat_window(beat_num)
+            self.view.insert_beat_at_cursor_window(beat_num)
         else:
             self.message_box(title="No Characters Exist",
                              message="Please create at least one character before adding an entry",
@@ -144,6 +188,11 @@ class Controller(QtCore.QObject):
         self.view.beat_window.close()
         self.view.refresh_view(self.model.data)
 
+    def insert_beat_in_model(self, beat_data, beat_num):
+
+        self.model.add_beat(beat_data, index = beat_num)
+        self.view.insert_beat_window.close()
+        self.view.refresh_view(self.model.data)
 
     def refresh_view(self):
         '''
@@ -250,6 +299,7 @@ class Controller(QtCore.QObject):
 
     def save_data(self, force_save_as=False):
         # was the save_as button pressed?
+        result = None
         if force_save_as:
             save_dir = self.view.save_as_window()
             if save_dir:

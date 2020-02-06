@@ -35,7 +35,6 @@ Ui_AddCharacterWindow, QtBaseClass = uic.loadUiType(add_char_ui_file)
 Ui_EditCharacterWindow, QtBaseClass = uic.loadUiType(edit_char_ui_file)
 Ui_AddEntryWindow, QtBaseClass = uic.loadUiType(add_entry_ui_file)
 
-
 class View(QtWidgets.QMainWindow, Ui_MainWindow):
     '''
     App Name: Storiograph
@@ -184,7 +183,7 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         self.nowTextEdit.setPlainText(data["beats"][slider_val]["synopsis"])
         self.tabWidget.refresh_view(data, slider_val)
 
-    def insert_beat_window(self, beat_num):
+    def insert_beat_at_cursor_window(self, beat_num):
         self.insert_beat_window = AddBeatView(view = self, beat_num=beat_num)
         self.insert_beat_window.send_entry_data.connect(self.controller.insert_beat_in_model)
         self.insert_beat_window.canceled.connect(self.controller.cancel)
@@ -223,12 +222,28 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         return self.char_window
 
     def edit_character_window(self, data):
-        self.edit_char_window = EditCharacterView(view = self, data = data)
+        self.edit_char_window = EditCharacterView(view = self, char_data= data)
         self.edit_char_window.send_character_data.connect(self.controller.edit_character_in_model)
         self.edit_char_window.canceled_signal.connect(self.controller.cancel)
         self.edit_char_window.show()
         return self.edit_char_window
 
+    def character_beat_wizard(self, data, char_uuid):
+        result = self.character_wizard_prompt()
+        # handle the result of the wizard prompt when opening the beat wizard
+
+    def character_wizard_prompt(self, data):
+        """
+        learn if the user wants to:
+        - edit every empty beat of a character
+        - edit a custom selection of beats
+        - edit every beat
+        :return:
+        result to pass directly into character_beat_wizard_window
+        """
+        if hasattr(self, "character_wizard_prompt_window"):
+            self.character_wizard_prompt_window.refresh_view()
+            self.character_wizard_prompt_window.show()
     def save_as_window(self):
         print("saved!")
         save_path, _filter = QFileDialog.getSaveFileName(self,"Story Project", "./save_files", "Story Arcs (*.json)")
@@ -286,14 +301,14 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
     send_character_data = pyqtSignal(dict)
     canceled_signal = pyqtSignal(QtWidgets.QWidget)
 
-    def __init__(self, view = None, data = dict):
+    def __init__(self, view = None, char_data = dict):
         QtWidgets.QWidget.__init__(self)
         Ui_AddCharacterWindow.__init__(self)
         self.view = view
         self.setupUi(self)
         self.connect_signals()
-        self.fill_data(data)
-        self.data = data
+        self.fill_data(char_data)
+        self.data = char_data
 
     def connect_signals(self):
         self.addBtn.clicked.connect(self.edit_character)
@@ -314,14 +329,15 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
     def cancel(self):
         self.canceled_signal.emit(self)
 
-    def refresh_view(self):
+    def refresh_view(self, char_data):
         self.nameLineEdit.setText("")
         self.ageLineEdit.setText("")
         self.descTextEdit.clear()
+        self.fill_data(char_data)
 
 
 class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
-    send_entry_data = pyqtSignal(dict)
+    send_entry_data = pyqtSignal(dict, int)
     canceled = pyqtSignal(QtWidgets.QWidget)
 
     def __init__(self, view=None, beat_num=int):
@@ -358,7 +374,7 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
         self.data["characters"]= {}
         for uuid, text in text_per_character:
             self.data["characters"][str(uuid)] = {"uuid":uuid, "scale_list":[0], "notes_list":[text]}
-        self.send_entry_data.emit(self.data)
+        self.send_entry_data.emit(self.data, self.beat_num)
 
     def cancel(self):
         self.canceled.emit(self)
@@ -494,4 +510,3 @@ class EntryPerCharWidget(QtWidgets.QWidget):
     def clear_all_tab_text(self):
         for tab in self.tabs:
             tab[0].entryTextEdit.clear()
-
