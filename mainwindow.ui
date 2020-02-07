@@ -378,7 +378,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="ApplyEditsBtn">
+       <widget class="QPushButton" name="applyEditsBtn">
         <property name="enabled">
          <bool>false</bool>
         </property>

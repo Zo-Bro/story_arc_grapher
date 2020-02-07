@@ -4,7 +4,10 @@
 Turn this into a Video Game Narrative Design Tool:
 This could eventually be useful in videogame design by adding parameters for production time projections, creating possible asset sheets, and other game-relevant info.
 '''
-
+# TODO
+# + Need to have a is_dirty flag that gets set when the text in a character entry tab changes.
+# + Before letting you move the plot slider, need to check if there are unsaved changes in the character tabs.
+# + If so, put up a prompt asking to save the changes. If they deny the prompt,
 
 import math
 import json
@@ -49,24 +52,24 @@ class Controller(QtCore.QObject):
         self.view.newCharBtn.clicked.connect(self.add_character_view)
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
         self.view.addEntryBtn.clicked.connect(self.add_beat_to_end_view)
+        self.view.plotSlider.valueChanged.connect(lambda: self.view.editEntriesCheckBox.setChecked(False))
         self.view.plotSlider.valueChanged.connect(lambda: self.view.refresh_synopsis_view(self.model.data))
+        self.view.plotSlider.valueChanged.connect(self.refresh_tabWidget_edit_state)
         self.view.moveBeatLeftBtn.clicked.connect(self.move_beat_left)
         self.view.moveBeatRightBtn.clicked.connect(self.move_beat_right)
         self.view.insertBeatBtn.clicked.connect(self.insert_beat_view)
+        self.view.editEntriesCheckBox.stateChanged.connect(self.refresh_tabWidget_edit_state)
+        self.view.applyEditsBtn.clicked.connect(self.apply_entry_edits)
         pass
-    def character_beat_wizard(self):
-        if len(self.model.data["beats"]):
-            if hasattr(self.view, "character_beat_wizard_window"):
-                pass
-            else:
-                data_beats_len = len(self.model.data["beats"])
-                self.view.character_beat_wizard(self.model.data)
 
-    def wizard_prompt(self):
-            """
-            ask how to update the character's entries
-            :return:
-            """
+    def apply_entry_edits(self):
+        pass
+
+    def refresh_tabWidget_edit_state(self):
+        editable = self.view.editEntriesCheckBox.isChecked()
+        if self.view.tabWidget is not None:
+            self.view.tabWidget.refresh_edit_state(editable)
+            self.view.applyEditsBtn.setEnabled(editable)
 
     def move_beat_left(self):
         logging.info("inside move_beat_left")
@@ -204,7 +207,8 @@ class Controller(QtCore.QObject):
             if self.view.tabHolder.count() < 0:
                 self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view,
                                                                       data = self.model.data,
-                                                                      beat_num = self.view.plotSlider.value()
+                                                                      beat_num = self.view.plotSlider.value(),
+                                                                      editable = False
                                                                       )
                                               )
             else:

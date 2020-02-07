@@ -61,6 +61,7 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
 
         :return:
         """
+        self.editEntriesCheckBox.stateChanged.connect(self.refresh_tabWidget_edit_state)
 
     def new(self):
         '''
@@ -181,7 +182,7 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
             self.nextTextEdit.setPlainText("")
         self.nowNameLabel.setText(data["beats"][slider_val]["name"])
         self.nowTextEdit.setPlainText(data["beats"][slider_val]["synopsis"])
-        self.tabWidget.refresh_view(data, slider_val)
+        self.tabWidget.refresh_view(data, slider_val, editable = False)
 
     def insert_beat_at_cursor_window(self, beat_num):
         self.insert_beat_window = AddBeatView(view = self, beat_num=beat_num)
@@ -443,7 +444,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
     A separate implementation of this will make one tab per entry for a single character.
 
     """
-    def __init__(self, *args, view=None, data=None, beat_num=0, **kwargs):
+    def __init__(self, *args, view=None, data=None, beat_num=0, editable=True, **kwargs):
         """
         data = the entire JSON data contained in the model
         beat_num = the integer for the entry to display
@@ -458,9 +459,9 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
         self.tabs = []
         if data:
-            self.create_character_tabs(data)
+            self.create_character_tabs(data, editable)
 
-    def create_character_tabs(self, data=None):
+    def create_character_tabs(self, data=None, editable=True):
         """
         create all the tabs in the tabwidget
         iterates through the entries in a beat and adds a tab for each one it finds
@@ -472,15 +473,15 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         if len(data["beats"]):
             for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
                 name = data["characters"][str(char_uuid)]["name"]
-                self.tabs.append((self.create_character_tab(entry_character_data = char_data), name, char_uuid))
+                self.tabs.append((self.create_character_tab(entry_character_data = char_data, editable=editable), name, char_uuid))
         else:
             for char_uuid, char_data in data["characters"].items():
                 name = char_data["name"]
-                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"]), name, char_data["uuid"]))
+                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"], editable=editable), name, char_data["uuid"]))
         for tab in self.tabs:
             self.tabWidget.addTab(tab[0], tab[1])
 
-    def create_character_tab(self, entry_character_data=None, char_uuid=str):
+    def create_character_tab(self, entry_character_data=None, char_uuid=str, editable=True):
         """
         create a character tab, and return the reference to the tab
         Each character tab contains the character's name
@@ -489,6 +490,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         tab = QtWidgets.QWidget()
         tab.layout = QtWidgets.QVBoxLayout(tab)
         tab.entryTextEdit = QtWidgets.QPlainTextEdit()
+        tab.entryTextEdit.setEnabled(editable)
         tab.layout.addWidget(tab.entryTextEdit)
         if entry_character_data:
             tab.uuid = entry_character_data["uuid"]
@@ -499,14 +501,19 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         tab.setLayout(tab.layout)
         return tab
 
-    def refresh_view(self, data, beat_num):
+    def refresh_view(self, data, beat_num, editable=True):
         #self.layout = QtWidgets.QVBoxLayout(self)
         #self.tabWidget = QtWidgets.QTabWidget()
         #self.tabs = []
         self.beat_num = beat_num
         self.tabWidget.clear()
-        self.create_character_tabs(data)
+        self.create_character_tabs(data, editable=editable)
 
     def clear_all_tab_text(self):
         for tab in self.tabs:
             tab[0].entryTextEdit.clear()
+
+    def refresh_edit_state(self, editable=False):
+        for tab in self.tabs:
+            tab[0].entryTextEdit.setEnabled(editable)
+
