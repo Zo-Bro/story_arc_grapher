@@ -139,7 +139,7 @@ class Story_Object(object):
         self.is_dirty = True
         return
 
-    def add_or_edit_entry(self, beat_ID, char_ID, scale_list, notes_list):
+    def edit_entry(self, beat_ID, char_ID, scale_list=[], notes_list=[]):
         '''
         add or edit one character's entry.
         beat_ID (int) = the location on the x axis for this entry
@@ -147,13 +147,10 @@ class Story_Object(object):
         scale_list  (list) = list of floats that indicate the quality of each entry
         notes_list (list) = list of strings that provide details about each scale value
         '''
-        for char in self.data.beats[beat_ID]:
-            if char['uuid'] == char_ID:
-                char['scale_list'] = scale_list
-                char['notes_list'] = notes_list
-                self.is_dirty = True
-                return
-        logging.warning("no character found, edit_entry did not edit anything")
+        char = self.data["beats"][beat_ID]["characters"][char_ID]
+        char['scale_list'] = scale_list
+        char['notes_list'] = notes_list
+        self.is_dirty = True
         return
 
     def get_character_data(self, char_ID, data_key):

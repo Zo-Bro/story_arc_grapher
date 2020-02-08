@@ -9,7 +9,6 @@ This could eventually be useful in videogame design by adding parameters for pro
 import math
 import json
 import logging
-import uuid
 import os
 from model import UUID
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -51,8 +50,17 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.tabWidget = EntryPerCharWidget(view=self)
         self.tabHolder.addWidget(self.tabWidget)
-        
+        button_palette = QtGui.QPalette()
+        button_palette.setColor(QtGui.QPalette.Active, QtGui.QPalette.Button, QtGui.QColor(134, 235, 152))
+        button_palette.setCurrentColorGroup(QtGui.QPalette.Disabled)
+        button_palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Button, QtGui.QColor(209, 209, 209))
+        self.applyEditsBtn.setPalette(button_palette)
 
+        discard_palette = QtGui.QPalette()
+        discard_palette.setColor(QtGui.QPalette.Active, QtGui.QPalette.Button, QtGui.QColor(219, 37, 67))
+        discard_palette.setCurrentColorGroup(QtGui.QPalette.Disabled)
+        discard_palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Button, QtGui.QColor(209, 209, 209))
+        self.discardEditsBtn.setPalette(discard_palette)
     def set_controller(self, controller):
         self.controller = controller
 
@@ -61,7 +69,6 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
 
         :return:
         """
-        self.editEntriesCheckBox.stateChanged.connect(self.refresh_tabWidget_edit_state)
 
     def new(self):
         '''
@@ -150,6 +157,13 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         '''
         # prep vars
         if len(data["beats"]) == 0:
+            self.prevNameLabel.setText("...")
+            self.prevTextEdit.setPlainText("")
+            self.nextNameLabel.setText("...")
+            self.nextTextEdit.setPlainText("")
+            self.nowNameLabel.setText("...")
+            self.nowTextEdit.setPlainText("")
+            self.tabWidget.refresh_view()
             return
         prev_entry = True
         next_entry = True
@@ -184,15 +198,15 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         self.nowTextEdit.setPlainText(data["beats"][slider_val]["synopsis"])
         self.tabWidget.refresh_view(data, slider_val, editable = False)
 
-    def insert_beat_at_cursor_window(self, beat_num):
-        self.insert_beat_window = AddBeatView(view = self, beat_num=beat_num)
+    def insert_beat_at_cursor_window(self, data=None, beat_num=int):
+        self.insert_beat_window = AddBeatView(view=self, data=data, beat_num=beat_num)
         self.insert_beat_window.send_entry_data.connect(self.controller.insert_beat_in_model)
         self.insert_beat_window.canceled.connect(self.controller.cancel)
         self.insert_beat_window.show()
         return self.insert_beat_window
 
-    def add_beat_to_end_window(self, beat_num):
-        self.beat_window = AddBeatView(view=self, beat_num=beat_num)
+    def add_beat_to_end_window(self, data=None, beat_num=int):
+        self.beat_window = AddBeatView(view=self, data=data, beat_num=beat_num)
         self.beat_window.send_entry_data.connect(self.controller.add_beat_to_end_model)
         self.beat_window.canceled.connect(self.controller.cancel)
         self.beat_window.show()
@@ -341,14 +355,18 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
     send_entry_data = pyqtSignal(dict, int)
     canceled = pyqtSignal(QtWidgets.QWidget)
 
-    def __init__(self, view=None, beat_num=int):
+    def __init__(self, view=None, data=None, beat_num=int):
         QtWidgets.QWidget.__init__(self)
         Ui_AddEntryWindow.__init__(self)
         self.setupUi(self)
         self.view = view
         self.beat_num = beat_num
         self.create_character_widgets()
+        if data:
+            self.refresh_synopsis_view(data=data, beat_num=beat_num)
+            self.tabWidget.clear_all_tab_text()
         self.connect_signals()
+
 
     def connect_signals(self):
         self.addEntryBtn.clicked.connect(self.create_entry)
@@ -389,6 +407,11 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
         '''
         # prep vars
         if len(data["beats"]) == 0:
+            self.prevNameLabel.setText("...")
+            self.prevTextEdit.setPlainText("")
+            self.nextNameLabel.setText("...")
+            self.nextTextEdit.setPlainText("")
+
             return
         prev_entry = True
         next_entry = True
@@ -401,10 +424,10 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
             prev_entry_val = slider_val - 1
 
         # slider value starts at 0, beats len starts at 1
-        if slider_val == len(data["beats"]) - 1:
+        if slider_val == len(data["beats"]):
             next_entry = False
         else:
-            next_entry_val = slider_val + 1
+            next_entry_val = slider_val
 
         # edit the text widgets based on availability of data
         if prev_entry:
@@ -423,6 +446,7 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
     def refresh_view(self, data, beat_num):
         self.nameLineEdit.setText("")
         self.synopsisTextEdit.clear()
+        self.tabWidget.refresh_view(data=data, beat_num=beat_num)
         self.tabWidget.clear_all_tab_text()
         self.refresh_synopsis_view(data, beat_num)
 
@@ -436,7 +460,6 @@ class CharListWidgetItem(QtWidgets.QListWidgetItem):
     def __init__(self, *args, uuid='', **kwargs ):
         super().__init__(*args, **kwargs)
         self.uuid = uuid
-
 
 class EntryPerCharWidget(QtWidgets.QWidget):
     """
@@ -458,6 +481,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.tabWidget)
         self.setLayout(self.layout)
         self.tabs = []
+        self.is_dirty = False
         if data:
             self.create_character_tabs(data, editable)
 
@@ -470,7 +494,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         """
         self.tabs = []
 
-        if len(data["beats"]):
+        if len(data["beats"]) > self.beat_num:
             for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
                 name = data["characters"][str(char_uuid)]["name"]
                 self.tabs.append((self.create_character_tab(entry_character_data = char_data, editable=editable), name, char_uuid))
@@ -480,6 +504,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
                 self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"], editable=editable), name, char_data["uuid"]))
         for tab in self.tabs:
             self.tabWidget.addTab(tab[0], tab[1])
+            tab[0].entryTextEdit.textChanged.connect(self.set_dirty_flag)
 
     def create_character_tab(self, entry_character_data=None, char_uuid=str, editable=True):
         """
@@ -501,13 +526,14 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         tab.setLayout(tab.layout)
         return tab
 
-    def refresh_view(self, data, beat_num, editable=True):
+    def refresh_view(self, data=None, beat_num=0, editable=True):
         #self.layout = QtWidgets.QVBoxLayout(self)
         #self.tabWidget = QtWidgets.QTabWidget()
         #self.tabs = []
         self.beat_num = beat_num
         self.tabWidget.clear()
-        self.create_character_tabs(data, editable=editable)
+        if data:
+            self.create_character_tabs(data, editable=editable)
 
     def clear_all_tab_text(self):
         for tab in self.tabs:
@@ -516,4 +542,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
     def refresh_edit_state(self, editable=False):
         for tab in self.tabs:
             tab[0].entryTextEdit.setEnabled(editable)
+
+    def set_dirty_flag(self):
+        self.is_dirty = True
 

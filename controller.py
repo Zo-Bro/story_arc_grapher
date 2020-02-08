@@ -5,9 +5,11 @@ Turn this into a Video Game Narrative Design Tool:
 This could eventually be useful in videogame design by adding parameters for production time projections, creating possible asset sheets, and other game-relevant info.
 '''
 # TODO
-# + Need to have a is_dirty flag that gets set when the text in a character entry tab changes.
-# + Before letting you move the plot slider, need to check if there are unsaved changes in the character tabs.
-# + If so, put up a prompt asking to save the changes. If they deny the prompt,
+# include editing of the current synopsis when you click "edit Entries" checkbox.
+#  - replace synopsis nameLabel with a textEdit (refactor in code eventually)
+#  - enable the synopsis text and name edit in refresh_tabWidget_edit_state
+#  - add updating of beat text in model to apply_entry_edits call
+
 
 import math
 import json
@@ -60,16 +62,51 @@ class Controller(QtCore.QObject):
         self.view.insertBeatBtn.clicked.connect(self.insert_beat_view)
         self.view.editEntriesCheckBox.stateChanged.connect(self.refresh_tabWidget_edit_state)
         self.view.applyEditsBtn.clicked.connect(self.apply_entry_edits)
+        self.view.discardEditsBtn.clicked.connect(self.discard_entry_edits)
         pass
 
     def apply_entry_edits(self):
-        pass
+        beat_num = self.view.plotSlider.value()
+        for tab in self.view.tabWidget.tabs:
+            entry_text = tab[0].entryTextEdit.toPlainText()
+            scale_list = []
+            char_ID = tab[2]
+            self.model.edit_entry(beat_num, char_ID, scale_list, [entry_text])
+        self.view.editEntriesCheckBox.setEnabled(True)
+        self.view.editEntriesCheckBox.setChecked(False)
+
+    def discard_entry_edits(self):
+        for x in range(0, len(self.view.tabWidget.tabs)):
+            tab = self.view.tabWidget.tabs[x]
+            text = self.view.discardEditsBtn.temp_tab_data[x]
+            tab[0].entryTextEdit.setPlainText(text)
+        self.view.editEntriesCheckBox.setEnabled(True)
+        self.view.editEntriesCheckBox.setChecked(False)
 
     def refresh_tabWidget_edit_state(self):
         editable = self.view.editEntriesCheckBox.isChecked()
         if self.view.tabWidget is not None:
             self.view.tabWidget.refresh_edit_state(editable)
             self.view.applyEditsBtn.setEnabled(editable)
+            self.view.discardEditsBtn.setEnabled(editable)
+            # if entries are being edited, don't let the user do anything else until they are done.
+            if editable:
+                self.view.editEntriesCheckBox.setEnabled(False)
+                self.view.discardEditsBtn.temp_tab_data = []
+                for tab in self.view.tabWidget.tabs:
+                    self.view.discardEditsBtn.temp_tab_data.append(tab[0].entryTextEdit.toPlainText())
+                for group in self.view.findChildren(QtWidgets.QGroupBox):
+                    if group.title() == "Character Entries":
+                        pass
+                    else:
+                        group.setEnabled(False)
+            else:
+                for group in self.view.findChildren(QtWidgets.QGroupBox):
+                    if group.title() == "Character Entries":
+                        pass
+                    else:
+                        group.setEnabled(True)
+
 
     def move_beat_left(self):
         logging.info("inside move_beat_left")
@@ -156,7 +193,7 @@ class Controller(QtCore.QObject):
                 self.view.insert_beat_window.refresh_view(self.model.data, beat_num)
                 self.view.insert_beat_window.show()
                 return
-            self.view.insert_beat_at_cursor_window(beat_num)
+            self.view.insert_beat_at_cursor_window(data=self.model.data, beat_num=beat_num)
         else:
             self.message_box(title="No Characters Exist",
                              message="Please create at least one character before adding an entry",
@@ -165,16 +202,15 @@ class Controller(QtCore.QObject):
 
 
     def add_beat_to_end_view(self):
-
         if self.model.data["characters"]:
             # update the plot slider to the new beat number
-            beat_num = self.view.plotSlider.maximum()
+            beat_num = self.view.plotSlider.maximum() + 1
             # open the beat view
             if hasattr(self.view, 'beat_window'):
                 self.view.beat_window.refresh_view(self.model.data, beat_num)
                 self.view.beat_window.show()
                 return
-            self.view.add_beat_to_end_window(beat_num)
+            self.view.add_beat_to_end_window(data=self.model.data, beat_num=beat_num)
         else:
             self.message_box(title="No Characters Exist",
                              message="Please create at least one character before adding an entry",
@@ -249,13 +285,13 @@ class Controller(QtCore.QObject):
             self.view.refresh_view(self.model.data)
             return
 
-    def save_prompt(self):
+    def save_prompt(self, title=None, message=None):
         '''
         convenience function for displaying a save prompt
         '''
         save_prompt = QtWidgets.QMessageBox()
-        save_prompt.setText("Story Project has unsaved changes.")
-        save_prompt.setInformativeText("Save before closing?")
+        save_prompt.setText(title or "Story Project has unsaved changes.")
+        save_prompt.setInformativeText(message or "Save before closing?")
         save_prompt.setStandardButtons(QtWidgets.QMessageBox.Save |QtWidgets.QMessageBox.Discard |QtWidgets.QMessageBox.Cancel)
         save_prompt.setDefaultButton(QtWidgets.QMessageBox.Save)
         return save_prompt.exec()
@@ -351,6 +387,7 @@ Load Empty View
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyle("Fusion")
     Controller = Controller(model = model.Story_Object(), view = view.View())
     Controller.model.start_up()
     Controller.view.set_controller(Controller)

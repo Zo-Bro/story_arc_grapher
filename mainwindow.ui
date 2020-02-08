@@ -7,52 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>1126</width>
-    <height>845</height>
+    <height>908</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="loadBtn">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>40</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Load</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="newBtn">
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>40</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>New</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="saveBtn">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Save</string>
-    </property>
-   </widget>
    <widget class="QPlainTextEdit" name="plainTextEdit">
     <property name="geometry">
      <rect>
@@ -66,8 +27,8 @@
    <widget class="PlotWidget" name="graphWidget" native="true">
     <property name="geometry">
      <rect>
-      <x>930</x>
-      <y>640</y>
+      <x>950</x>
+      <y>680</y>
       <width>161</width>
       <height>111</height>
      </rect>
@@ -76,10 +37,10 @@
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>720</x>
-      <y>100</y>
+      <x>740</x>
+      <y>80</y>
       <width>211</width>
-      <height>661</height>
+      <height>721</height>
      </rect>
     </property>
     <property name="font">
@@ -97,7 +58,7 @@
        <x>10</x>
        <y>20</y>
        <width>191</width>
-       <height>631</height>
+       <height>691</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -125,6 +86,13 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="newBtn_2">
+        <property name="text">
+         <string>Edit Character Sheet Fields</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </widget>
@@ -134,7 +102,7 @@
       <x>10</x>
       <y>80</y>
       <width>711</width>
-      <height>721</height>
+      <height>431</height>
      </rect>
     </property>
     <property name="title">
@@ -192,13 +160,6 @@
        <widget class="QPushButton" name="addEntryBtn">
         <property name="text">
          <string>Add Story Beat to End</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton">
-        <property name="text">
-         <string>Edit Beat</string>
         </property>
        </widget>
       </item>
@@ -349,13 +310,26 @@
       </item>
      </layout>
     </widget>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_3">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>510</y>
+      <width>711</width>
+      <height>291</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Character Entries</string>
+    </property>
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>430</y>
+       <y>20</y>
        <width>691</width>
-       <height>241</height>
+       <height>231</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="tabHolder"/>
@@ -364,7 +338,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>670</y>
+       <y>250</y>
        <width>691</width>
        <height>41</height>
       </rect>
@@ -388,39 +362,79 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
         <property name="text">
          <string>Apply Edits</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="discardEditsBtn">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Discard Edits</string>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </widget>
-   <widget class="QPushButton" name="saveAsBtn">
+   <widget class="QGroupBox" name="groupBox_4">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>40</y>
-      <width>93</width>
-      <height>28</height>
+      <x>10</x>
+      <y>20</y>
+      <width>421</width>
+      <height>51</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Save As...</string>
+    <property name="title">
+     <string>File Functions</string>
     </property>
-   </widget>
-   <widget class="QPushButton" name="newBtn_2">
-    <property name="geometry">
-     <rect>
-      <x>940</x>
-      <y>120</y>
-      <width>181</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Edit Character Sheet Fields</string>
-    </property>
+    <widget class="QWidget" name="horizontalLayoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>391</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QPushButton" name="saveBtn">
+        <property name="text">
+         <string>Save</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="saveAsBtn">
+        <property name="text">
+         <string>Save As...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="loadBtn">
+        <property name="text">
+         <string>Load</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="newBtn">
+        <property name="text">
+         <string>New</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -429,7 +443,7 @@
      <x>0</x>
      <y>0</y>
      <width>1126</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
