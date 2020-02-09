@@ -9,7 +9,6 @@ This could eventually be useful in videogame design by adding parameters for pro
 import math
 import json
 import logging
-import uuid
 import os
 from model import UUID
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
@@ -35,7 +34,6 @@ Ui_AddCharacterWindow, QtBaseClass = uic.loadUiType(add_char_ui_file)
 Ui_EditCharacterWindow, QtBaseClass = uic.loadUiType(edit_char_ui_file)
 Ui_AddEntryWindow, QtBaseClass = uic.loadUiType(add_entry_ui_file)
 
-
 class View(QtWidgets.QMainWindow, Ui_MainWindow):
     '''
     App Name: Storiograph
@@ -52,8 +50,17 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.tabWidget = EntryPerCharWidget(view=self)
         self.tabHolder.addWidget(self.tabWidget)
-        
+        button_palette = QtGui.QPalette()
+        button_palette.setColor(QtGui.QPalette.Active, QtGui.QPalette.Button, QtGui.QColor(134, 235, 152))
+        button_palette.setCurrentColorGroup(QtGui.QPalette.Disabled)
+        button_palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Button, QtGui.QColor(209, 209, 209))
+        self.applyEditsBtn.setPalette(button_palette)
 
+        discard_palette = QtGui.QPalette()
+        discard_palette.setColor(QtGui.QPalette.Active, QtGui.QPalette.Button, QtGui.QColor(219, 37, 67))
+        discard_palette.setCurrentColorGroup(QtGui.QPalette.Disabled)
+        discard_palette.setColor(QtGui.QPalette.Disabled, QtGui.QPalette.Button, QtGui.QColor(209, 209, 209))
+        self.discardEditsBtn.setPalette(discard_palette)
     def set_controller(self, controller):
         self.controller = controller
 
@@ -150,6 +157,13 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         '''
         # prep vars
         if len(data["beats"]) == 0:
+            self.prevNameLabel.setText("...")
+            self.prevTextEdit.setPlainText("")
+            self.nextNameLabel.setText("...")
+            self.nextTextEdit.setPlainText("")
+            self.nowNameLabel.setText("...")
+            self.nowTextEdit.setPlainText("")
+            self.tabWidget.refresh_view()
             return
         prev_entry = True
         next_entry = True
@@ -182,18 +196,17 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
             self.nextTextEdit.setPlainText("")
         self.nowNameLabel.setText(data["beats"][slider_val]["name"])
         self.nowTextEdit.setPlainText(data["beats"][slider_val]["synopsis"])
-        self.tabWidget.refresh_view(data, slider_val)
+        self.tabWidget.refresh_view(data, slider_val, editable = False)
 
-
-    def insert_beat_window(self, beat_num):
-        self.insert_beat_window = AddBeatView(view = self, beat_num=beat_num)
+    def insert_beat_at_cursor_window(self, data=None, beat_num=int):
+        self.insert_beat_window = AddBeatView(view=self, data=data, beat_num=beat_num)
         self.insert_beat_window.send_entry_data.connect(self.controller.insert_beat_in_model)
         self.insert_beat_window.canceled.connect(self.controller.cancel)
         self.insert_beat_window.show()
         return self.insert_beat_window
 
-    def add_beat_to_end_window(self, beat_num):
-        self.beat_window = AddBeatView(view = self, beat_num=beat_num)
+    def add_beat_to_end_window(self, data=None, beat_num=int):
+        self.beat_window = AddBeatView(view=self, data=data, beat_num=beat_num)
         self.beat_window.send_entry_data.connect(self.controller.add_beat_to_end_model)
         self.beat_window.canceled.connect(self.controller.cancel)
         self.beat_window.show()
@@ -224,12 +237,28 @@ class View(QtWidgets.QMainWindow, Ui_MainWindow):
         return self.char_window
 
     def edit_character_window(self, data):
-        self.edit_char_window = EditCharacterView(view = self, data = data)
+        self.edit_char_window = EditCharacterView(view = self, char_data= data)
         self.edit_char_window.send_character_data.connect(self.controller.edit_character_in_model)
         self.edit_char_window.canceled_signal.connect(self.controller.cancel)
         self.edit_char_window.show()
         return self.edit_char_window
 
+    def character_beat_wizard(self, data, char_uuid):
+        result = self.character_wizard_prompt()
+        # handle the result of the wizard prompt when opening the beat wizard
+
+    def character_wizard_prompt(self, data):
+        """
+        learn if the user wants to:
+        - edit every empty beat of a character
+        - edit a custom selection of beats
+        - edit every beat
+        :return:
+        result to pass directly into character_beat_wizard_window
+        """
+        if hasattr(self, "character_wizard_prompt_window"):
+            self.character_wizard_prompt_window.refresh_view()
+            self.character_wizard_prompt_window.show()
     def save_as_window(self):
         print("saved!")
         save_path, _filter = QFileDialog.getSaveFileName(self,"Story Project", "./save_files", "Story Arcs (*.json)")
@@ -287,14 +316,14 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
     send_character_data = pyqtSignal(dict)
     canceled_signal = pyqtSignal(QtWidgets.QWidget)
 
-    def __init__(self, view = None, data = dict):
+    def __init__(self, view = None, char_data = dict):
         QtWidgets.QWidget.__init__(self)
         Ui_AddCharacterWindow.__init__(self)
         self.view = view
         self.setupUi(self)
         self.connect_signals()
-        self.fill_data(data)
-        self.data = data
+        self.fill_data(char_data)
+        self.data = char_data
 
     def connect_signals(self):
         self.addBtn.clicked.connect(self.edit_character)
@@ -315,24 +344,29 @@ class EditCharacterView(QtWidgets.QWidget, Ui_EditCharacterWindow):
     def cancel(self):
         self.canceled_signal.emit(self)
 
-    def refresh_view(self):
+    def refresh_view(self, char_data):
         self.nameLineEdit.setText("")
         self.ageLineEdit.setText("")
         self.descTextEdit.clear()
+        self.fill_data(char_data)
 
 
 class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
-    send_entry_data = pyqtSignal(dict)
+    send_entry_data = pyqtSignal(dict, int)
     canceled = pyqtSignal(QtWidgets.QWidget)
 
-    def __init__(self, view=None, beat_num=int):
+    def __init__(self, view=None, data=None, beat_num=int):
         QtWidgets.QWidget.__init__(self)
         Ui_AddEntryWindow.__init__(self)
         self.setupUi(self)
         self.view = view
         self.beat_num = beat_num
         self.create_character_widgets()
+        if data:
+            self.refresh_synopsis_view(data=data, beat_num=beat_num)
+            self.tabWidget.clear_all_tab_text()
         self.connect_signals()
+
 
     def connect_signals(self):
         self.addEntryBtn.clicked.connect(self.create_entry)
@@ -359,34 +393,41 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
         self.data["characters"]= {}
         for uuid, text in text_per_character:
             self.data["characters"][str(uuid)] = {"uuid":uuid, "scale_list":[0], "notes_list":[text]}
-        self.send_entry_data.emit(self.data)
+        self.send_entry_data.emit(self.data, self.beat_num)
 
     def cancel(self):
         self.canceled.emit(self)
-    def refresh_synopsis_view(self, data):
+
+    def refresh_synopsis_view(self, data, beat_num):
         '''
         show what is happening before, now , and next in the story
         based on the position of the plotSlider
         data = the data variable of a model.StoryObject
+        beat_num =
         '''
         # prep vars
         if len(data["beats"]) == 0:
+            self.prevNameLabel.setText("...")
+            self.prevTextEdit.setPlainText("")
+            self.nextNameLabel.setText("...")
+            self.nextTextEdit.setPlainText("")
+
             return
         prev_entry = True
         next_entry = True
-        slider_val = self.view.plotSlider.value()
+        slider_val = beat_num
         # check if the plot slider is at max or min position
         # so we know whether prev or next text exists in data
         if slider_val == 0:
             prev_entry = False
         else:
-            prev_entry_val = slider_val -1
+            prev_entry_val = slider_val - 1
 
-        # slider value starts at 1, beats len starts at 1
-        if slider_val == len(data["beats"])-1:
+        # slider value starts at 0, beats len starts at 1
+        if slider_val == len(data["beats"]):
             next_entry = False
         else:
-            next_entry_val = slider_val + 1
+            next_entry_val = slider_val
 
         # edit the text widgets based on availability of data
         if prev_entry:
@@ -402,15 +443,12 @@ class AddBeatView(QtWidgets.QWidget, Ui_AddEntryWindow):
             self.nextNameLabel.setText("...")
             self.nextTextEdit.setPlainText("")
 
-    def refresh_view(self, data):
-        #self.beat_num = beat_num
+    def refresh_view(self, data, beat_num):
         self.nameLineEdit.setText("")
         self.synopsisTextEdit.clear()
-        self.tabWidget.
-        self.tabWidget.clear_view()
-        self.refresh_synopsis_view(data)
-        self.create_character_widgets()
-
+        self.tabWidget.refresh_view(data=data, beat_num=beat_num)
+        self.tabWidget.clear_all_tab_text()
+        self.refresh_synopsis_view(data, beat_num)
 
 
 
@@ -423,14 +461,13 @@ class CharListWidgetItem(QtWidgets.QListWidgetItem):
         super().__init__(*args, **kwargs)
         self.uuid = uuid
 
-
 class EntryPerCharWidget(QtWidgets.QWidget):
     """
     This creates a tabbed view of the specific entry for each character.
     A separate implementation of this will make one tab per entry for a single character.
 
     """
-    def __init__(self, *args, view=None, data=None, beat_num=0, **kwargs):
+    def __init__(self, *args, view=None, data=None, beat_num=0, editable=True, **kwargs):
         """
         data = the entire JSON data contained in the model
         beat_num = the integer for the entry to display
@@ -444,32 +481,32 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.tabWidget)
         self.setLayout(self.layout)
         self.tabs = []
+        self.is_dirty = False
         if data:
-            self.create_tabWidget(data)
+            self.create_character_tabs(data, editable)
 
-
-    def create_tabWidget(self, data=None):
+    def create_character_tabs(self, data=None, editable=True):
         """
-        create the entire tabwidget
+        create all the tabs in the tabwidget
         iterates through the entries in a beat and adds a tab for each one it finds
 
         sets everything to self, so it can be easily referenced
         """
         self.tabs = []
 
-        if len(data["beats"]):
+        if len(data["beats"]) > self.beat_num:
             for char_uuid, char_data in data['beats'][self.beat_num]['characters'].items():
                 name = data["characters"][str(char_uuid)]["name"]
-                self.tabs.append((self.create_character_tab(entry_character_data = char_data), name, char_uuid))
+                self.tabs.append((self.create_character_tab(entry_character_data = char_data, editable=editable), name, char_uuid))
         else:
             for char_uuid, char_data in data["characters"].items():
                 name = char_data["name"]
-                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"]), name, char_data["uuid"]))
+                self.tabs.append((self.create_character_tab(char_uuid = char_data["uuid"], editable=editable), name, char_data["uuid"]))
         for tab in self.tabs:
             self.tabWidget.addTab(tab[0], tab[1])
+            tab[0].entryTextEdit.textChanged.connect(self.set_dirty_flag)
 
-
-    def create_character_tab(self, entry_character_data=None, char_uuid=str):
+    def create_character_tab(self, entry_character_data=None, char_uuid=str, editable=True):
         """
         create a character tab, and return the reference to the tab
         Each character tab contains the character's name
@@ -478,6 +515,7 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         tab = QtWidgets.QWidget()
         tab.layout = QtWidgets.QVBoxLayout(tab)
         tab.entryTextEdit = QtWidgets.QPlainTextEdit()
+        tab.entryTextEdit.setEnabled(editable)
         tab.layout.addWidget(tab.entryTextEdit)
         if entry_character_data:
             tab.uuid = entry_character_data["uuid"]
@@ -488,26 +526,23 @@ class EntryPerCharWidget(QtWidgets.QWidget):
         tab.setLayout(tab.layout)
         return tab
 
-    def refresh_view(self, data, beat_num):
+    def refresh_view(self, data=None, beat_num=0, editable=True):
         #self.layout = QtWidgets.QVBoxLayout(self)
         #self.tabWidget = QtWidgets.QTabWidget()
         #self.tabs = []
         self.beat_num = beat_num
         self.tabWidget.clear()
-        char_uuid_on_file = [tab[2] for tab in self.tabs]
-        for char_uuid, char_data in data["characters"].items():
-            name = char_data["name"]
-            char_entry_data = data["beats"][self.beat_num]["characters"][char_uuid]
-            if char_uuid in char_uuid_on_file:
-                char_tab_index = char_uuid_on_file.index(char_uuid)
-                self.tabs[char_tab_index][0].entryTextEdit.setPlainText(char_entry_data["notes_list"][0])
-            #a new character was added since last time.
-            else:
-                new_tab = self.create_character_tab(entry_character_data=char_entry_data, char_uuid = char_uuid)
-                self.tabs.append((new_tab, name, char_uuid))
-                self.tabWidget.addTab(self.tabs[-1][0], self.tabs[-1][1])
+        if data:
+            self.create_character_tabs(data, editable=editable)
 
-    def clear_view(self):
+    def clear_all_tab_text(self):
         for tab in self.tabs:
-                tab[0].entryTextEdit.clear()
+            tab[0].entryTextEdit.clear()
+
+    def refresh_edit_state(self, editable=False):
+        for tab in self.tabs:
+            tab[0].entryTextEdit.setEnabled(editable)
+
+    def set_dirty_flag(self):
+        self.is_dirty = True
 

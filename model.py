@@ -18,7 +18,7 @@ import math
 import json
 import logging
 import uuid
-
+import os
 actions = ['heal', 'wound', 'kill', 'betray', 'defend', 'immobilize', 'condemn', 'beg']
 emotions = ['happy', 'sad', 'furious', 'motivated', 'disgusted']
 energy_level_list = ['manic', 'excited', 'neutral', 'sluggish', 'lethargic']
@@ -88,6 +88,17 @@ class Story_Object(object):
         '''
         # if a save path was provided, save there
         if save_dir:
+            # ensure the save path is valid
+            try:
+                folder = os.path.split(save_dir)[0]
+                assert os.path.exists(folder)
+            except AssertionError:
+                return "not_exist"
+            try:
+                assert save_dir.endswith(".json")
+            except AssertionError:
+                return "wrong_type"
+
             logging.info("new save path provided. Writing to new location")
             self.data['save_dir'] = save_dir
             json_data = json.dumps(self.data, indent=4)
@@ -96,6 +107,7 @@ class Story_Object(object):
                 dest_file.write(json_data)
             self.is_dirty = False
             self.save_dir = self.data['save_dir']
+            return "success"
         # if no save path was provided and this Story doesnt have a save path yet
         elif self.save_dir is None:
             logging.warning("no save path provided and story object has no existing save path")
@@ -105,9 +117,8 @@ class Story_Object(object):
             json_data = json.dumps(self.data, indent=4)
             with open(self.save_dir, 'w') as dest_file:
                 dest_file.write(json_data)
-
-
             self.is_dirty = False
+            return "success"
 
     def add_character(self, data):
         '''
@@ -128,7 +139,7 @@ class Story_Object(object):
         self.is_dirty = True
         return
 
-    def add_or_edit_entry(self, beat_ID, char_ID, scale_list, notes_list):
+    def edit_entry(self, beat_ID, char_ID, scale_list=[], notes_list=[]):
         '''
         add or edit one character's entry.
         beat_ID (int) = the location on the x axis for this entry
@@ -136,13 +147,10 @@ class Story_Object(object):
         scale_list  (list) = list of floats that indicate the quality of each entry
         notes_list (list) = list of strings that provide details about each scale value
         '''
-        for char in self.data.beats[beat_ID]:
-            if char['uuid'] == char_ID:
-                char['scale_list'] = scale_list
-                char['notes_list'] = notes_list
-                self.is_dirty = True
-                return
-        logging.warning("no character found, edit_entry did not edit anything")
+        char = self.data["beats"][beat_ID]["characters"][char_ID]
+        char['scale_list'] = scale_list
+        char['notes_list'] = notes_list
+        self.is_dirty = True
         return
 
     def get_character_data(self, char_ID, data_key):
@@ -154,8 +162,23 @@ class Story_Object(object):
         if append:
             self.data["beats"].append(data)
         else:
-            self.data["beats"].insert(data, index)
+            self.data["beats"].insert(index, data)
         self.is_dirty = True
+
+    def edit_beat(self, beat_num=int, name=None, synopsis=None):
+        """
+        updates a beat's title and synopsis if needed
+        """
+        if beat_num is not None:
+            if type(name) == str:
+                if name != self.data["beats"][beat_num]["name"]:
+                    self.data["beats"][beat_num]["name"] = name
+                    self.is_dirty = True
+            if type(synopsis) == str:
+                if synopsis != self.data["beats"][beat_num]["synopsis"]:
+                    self.data["beats"][beat_num]["synopsis"] = synopsis
+                    self.is_dirty = True
+
 
 
     def create_empty_entry(self, char_ID, beat_index=0):
@@ -163,10 +186,7 @@ class Story_Object(object):
         insert a placeholder entry for the specified character.
         If append is false, insert into the space indicated with "x"
         '''
-        if append == False:
-            self.data["beats"][beat_index]["characters"][char_ID] = self.entry_object(char_ID)
-        else:
-            self.data["beats"][-1]["characters"][char_ID] = self.entry_object(char_ID)
+        self.data["beats"][beat_index]["characters"][char_ID] = self.entry_object(char_ID)
 
     def entry_object(self, uuid, scale_list = [0], notes_list = [""]):
         """

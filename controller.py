@@ -4,6 +4,9 @@
 Turn this into a Video Game Narrative Design Tool:
 This could eventually be useful in videogame design by adding parameters for production time projections, creating possible asset sheets, and other game-relevant info.
 '''
+# TODO
+# look at feature_list.txt for planning.
+# should implement this with a sexy UI, like Kivy or similar (if I want to make this a real thing)
 
 
 import math
@@ -45,13 +48,129 @@ class Controller(QtCore.QObject):
         self.view.loadBtn.clicked.connect(self.load_data)
         self.view.newBtn.clicked.connect(self.new)
         self.view.saveBtn.clicked.connect(self.save_data)
+        self.view.saveAsBtn.clicked.connect(lambda: self.save_data(force_save_as=True))
         self.view.newCharBtn.clicked.connect(self.add_character_view)
-
         self.view.charDetailsBtn.clicked.connect(self.request_char_by_uuid)
         self.view.addEntryBtn.clicked.connect(self.add_beat_to_end_view)
         self.view.plotSlider.valueChanged.connect(lambda: self.view.refresh_synopsis_view(self.model.data))
-
+        self.view.moveBeatLeftBtn.clicked.connect(self.move_beat_left)
+        self.view.moveBeatRightBtn.clicked.connect(self.move_beat_right)
+        self.view.insertBeatBtn.clicked.connect(self.insert_beat_view)
+        self.view.editEntriesCheckBox.stateChanged.connect(self.refresh_tabWidget_edit_state)
+        self.view.applyEditsBtn.clicked.connect(self.apply_entry_edits)
+        self.view.discardEditsBtn.clicked.connect(self.discard_entry_edits)
         pass
+
+    def apply_entry_edits(self):
+        beat_num = self.view.plotSlider.value()
+        for tab in self.view.tabWidget.tabs:
+            entry_text = tab[0].entryTextEdit.toPlainText()
+            scale_list = []
+            char_ID = tab[2]
+            self.model.edit_entry(beat_num, char_ID, scale_list, [entry_text])
+        nameText = self.view.nowLineEdit.text()
+        synopsisText = self.view.nowTextEdit.toPlainText()
+        self.model.edit_beat(beat_num, name=nameText, synopsis=synopsisText)
+        self.view.editEntriesCheckBox.setEnabled(True)
+        self.view.editEntriesCheckBox.setChecked(False)
+
+    def discard_entry_edits(self):
+        for x in range(0, len(self.view.tabWidget.tabs)):
+            tab = self.view.tabWidget.tabs[x]
+            text = self.view.discardEditsBtn.temp_tab_data[x]
+            tab[0].entryTextEdit.setPlainText(text)
+        self.view.editEntriesCheckBox.setEnabled(True)
+        self.view.editEntriesCheckBox.setChecked(False)
+        self.view.nowNameLabel.setText(self.view.discardEditsBtn.temp_nameText)
+
+    def refresh_tabWidget_edit_state(self):
+        editable = self.view.editEntriesCheckBox.isChecked()
+        if self.view.tabWidget is not None:
+            self.view.tabWidget.refresh_edit_state(editable)
+            self.view.applyEditsBtn.setEnabled(editable)
+            self.view.discardEditsBtn.setEnabled(editable)
+            # if entries are being edited, don't let the user do anything else until they are done.
+            if editable:
+                self.view.editEntriesCheckBox.setEnabled(False)
+                self.view.discardEditsBtn.temp_tab_data = []
+                for tab in self.view.tabWidget.tabs:
+                    self.view.discardEditsBtn.temp_tab_data.append(tab[0].entryTextEdit.toPlainText())
+                for group in self.view.findChildren(QtWidgets.QGroupBox):
+                    if group.title() == "Character Entries":
+                        pass
+                    elif group.title() == "Story Beats":
+                        pass
+                    else:
+                        group.setEnabled(False)
+                self.toggle_synopsis_edit_state(True)
+                # keep the synopsis widgets editable
+
+            else:
+                for group in self.view.findChildren(QtWidgets.QGroupBox):
+                    if group.title() == "Character Entries":
+                        pass
+                    elif group.title() == "Story Beats":
+                        pass
+                    else:
+                        group.setEnabled(True)
+                self.toggle_synopsis_edit_state(False)
+
+    def toggle_synopsis_edit_state(self, editable):
+        """
+        switches the edit state of the now synopsis block on or off
+        """
+        max = self.view.storyBeatLayout.count()
+        index = 0
+        while index < max:
+            widget = self.view.storyBeatLayout.itemAt(index).widget()
+            # if the widget is not named "now", fugedaboudit
+            if not widget.objectName().startswith("now"):
+                pass
+            elif isinstance(widget, QtWidgets.QLabel) and editable==True:
+                text = widget.text()
+                self.view.discardEditsBtn.temp_nameText = text
+                self.view.nowLineEdit = QtWidgets.QLineEdit()
+                self.view.nowLineEdit.setObjectName("nowLineEdit")
+                self.view.nowLineEdit.setText(text)
+                self.view.storyBeatLayout.replaceWidget(widget, self.view.nowLineEdit)
+                widget.setParent(None)
+            elif isinstance(widget, QtWidgets.QLineEdit) and editable == False:
+                lineText = widget.text()
+                self.view.nowNameLabel = QtWidgets.QLabel()
+                self.view.nowNameLabel.setObjectName("nowNameLabel")
+                tempFont = QtGui.QFont()
+                tempFont.setBold(True)
+                self.view.nowNameLabel.setFont(tempFont)
+                self.view.nowNameLabel.setText(lineText)
+                self.view.storyBeatLayout.replaceWidget(widget, self.view.nowNameLabel)
+                widget.setParent(None)
+
+            elif isinstance(widget, QtWidgets.QPlainTextEdit):
+                widget.setEnabled(editable)
+            index += 1
+
+    def move_beat_left(self):
+        logging.info("inside move_beat_left")
+        if len(self.model.data["beats"]) > 0:
+            beat_index = self.view.plotSlider.value()
+            logging.debug("beat info is {}".format(str(beat_index)))
+            if beat_index > 0:
+                logging.debug("beat_index is greater than zero")
+                beat_to_move = self.model.data["beats"].pop(beat_index)
+                self.model.data["beats"].insert(beat_index-1, beat_to_move)
+                self.refresh_view()
+
+    def move_beat_right(self):
+
+        beats_max = len(self.model.data["beats"])
+        if len(self.model.data["beats"]) > 0:
+            beat_index = self.view.plotSlider.value()
+            logging.debug("beat info is {}".format(str(beat_index)))
+            if beat_index < beats_max:
+                logging.debug("beat_index is less than max")
+                beat_to_move = self.model.data["beats"].pop(beat_index)
+                self.model.data["beats"].insert(beat_index+1, beat_to_move)
+                self.refresh_view()
 
     def add_character_view(self):
         '''
@@ -64,13 +183,20 @@ class Controller(QtCore.QObject):
             self.view.add_character_window()
 
     def edit_character_view(self):
-
-        if hasattr(self.view, 'edit_char_window'):
-            self.view.edit_char_window.refresh_view()
-            self.view.edit_char_window.show()
+        if self.view.characterList.count() > 0:
+            temp_widget = self.view.characterList.currentItem()
+            if temp_widget is not None:
+                char_data = self.model.data['characters'][temp_widget.uuid]
+                if hasattr(self.view, 'edit_char_window'):
+                    self.view.edit_char_window.refresh_view()
+                    self.view.edit_char_window.show()
+                else:
+                    self.view.edit_character_window()
+            #handle the error if someone with that uuid cannot be found: delete the entry in the listWidget.
         else:
-            self.view.edit_character_window()
-            
+            return
+
+
     def add_character_to_model(self, char_data):
         """
 
@@ -102,11 +228,13 @@ class Controller(QtCore.QObject):
     def insert_beat_view(self):
         if self.model.data["characters"]:
             # update the plot slider to the new beat number
-            beat_num = self.view.plotSlider.value()
+            beat_num = self.view.plotSlider.value() + 1
             # open the beat view
             if hasattr(self.view, 'insert_beat_window'):
-                self.view.insert_beat_window.refresh_view()
-            self.view.add_beat_to_end_window(beat_num)
+                self.view.insert_beat_window.refresh_view(self.model.data, beat_num)
+                self.view.insert_beat_window.show()
+                return
+            self.view.insert_beat_at_cursor_window(data=self.model.data, beat_num=beat_num)
         else:
             self.message_box(title="No Characters Exist",
                              message="Please create at least one character before adding an entry",
@@ -115,14 +243,15 @@ class Controller(QtCore.QObject):
 
 
     def add_beat_to_end_view(self):
-
         if self.model.data["characters"]:
             # update the plot slider to the new beat number
-            beat_num = self.view.plotSlider.maximum()
+            beat_num = self.view.plotSlider.maximum() + 1
             # open the beat view
             if hasattr(self.view, 'beat_window'):
-                self.view.beat_window.refresh_view(self.model.data)
-            self.view.add_beat_to_end_window(beat_num)
+                self.view.beat_window.refresh_view(self.model.data, beat_num)
+                self.view.beat_window.show()
+                return
+            self.view.add_beat_to_end_window(data=self.model.data, beat_num=beat_num)
         else:
             self.message_box(title="No Characters Exist",
                              message="Please create at least one character before adding an entry",
@@ -139,6 +268,11 @@ class Controller(QtCore.QObject):
         self.view.beat_window.close()
         self.view.refresh_view(self.model.data)
 
+    def insert_beat_in_model(self, beat_data, beat_num):
+
+        self.model.add_beat(beat_data, index = beat_num)
+        self.view.insert_beat_window.close()
+        self.view.refresh_view(self.model.data)
 
     def refresh_view(self):
         '''
@@ -147,11 +281,16 @@ class Controller(QtCore.QObject):
         '''
         #update the Tab Widget
         if len(self.model.data["beats"]) > 0:
-            self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view, data = self.model.data, beat_num = self.view.plotSlider.value()))
-
+            if self.view.tabHolder.count() < 0:
+                self.view.tabHolder.addWidget(view.EntryPerCharWidget(view = self.view,
+                                                                      data = self.model.data,
+                                                                      beat_num = self.view.plotSlider.value(),
+                                                                      editable = False
+                                                                      )
+                                              )
+            else:
+                pass
         self.view.refresh_view(self.model.data)
-
-        pass
 
     def request_char_by_uuid(self):
         '''
@@ -187,13 +326,13 @@ class Controller(QtCore.QObject):
             self.view.refresh_view(self.model.data)
             return
 
-    def save_prompt(self):
+    def save_prompt(self, title=None, message=None):
         '''
         convenience function for displaying a save prompt
         '''
         save_prompt = QtWidgets.QMessageBox()
-        save_prompt.setText("Story Project has unsaved changes.")
-        save_prompt.setInformativeText("Save before closing?")
+        save_prompt.setText(title or "Story Project has unsaved changes.")
+        save_prompt.setInformativeText(message or "Save before closing?")
         save_prompt.setStandardButtons(QtWidgets.QMessageBox.Save |QtWidgets.QMessageBox.Discard |QtWidgets.QMessageBox.Cancel)
         save_prompt.setDefaultButton(QtWidgets.QMessageBox.Save)
         return save_prompt.exec()
@@ -239,15 +378,34 @@ class Controller(QtCore.QObject):
             # need to have a custom file type or a "save verification" so bad json doesn't get loaded
             self.message_box(title="Load File is not Valid", message="The path provided is not a valid Story Arc save file. Please try a different path", icon='warning')
 
-    def save_data(self):
-        #if a save location has been established, save there.
-        if self.model.data['save_dir']:
-            self.model.save_data()
-        #else, ask where to save and set that as the new save dir
+    def save_data(self, force_save_as=False):
+        # was the save_as button pressed?
+        result = None
+        if force_save_as:
+            save_dir = self.view.save_as_window()
+            if save_dir:
+                result = self.model.save_data(save_dir=save_dir)
+        # if a save location has been established, save there.
+        elif self.model.data['save_dir']:
+            result = self.model.save_data()
+        # else, ask where to save and set that as the new save dir
         else:
             save_dir = self.view.save_as_window()
             if save_dir:
-                self.model.save_data(save_dir=save_dir)
+                result = self.model.save_data(save_dir=save_dir)
+        # handle assertions
+        if result == "success":
+            return
+        elif result == "not_exist":
+            self.message_box("containing folder does not exist",
+                             "The containing folder you selected does not exist on disk.",
+                             "warning"
+                             )
+        elif result == "wrong_type":
+            self.message_box("file path given not .json",
+                             "the file path you gave does not end with '.json', and will not work",
+                             "warning"
+                             )
 
     def add_entry(self, character_uuid):
         '''
@@ -270,6 +428,7 @@ Load Empty View
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
+    app.setStyle("Fusion")
     Controller = Controller(model = model.Story_Object(), view = view.View())
     Controller.model.start_up()
     Controller.view.set_controller(Controller)

@@ -1,0 +1,16 @@
+MVP
+-add, edit story beats
+-add, edit characters
+-save, load projects
+
+V1
+-a "first time user" pop up to explain the basics.
+-a Character Details window that shows the selected character's profile
+-tool tips
+
+V2
+-more robust character editor: add an image, add custom fields
+-graph plotter: optional window for showing the tension or other levels during the story
+
+V3
+-right click menus/more robust UX
