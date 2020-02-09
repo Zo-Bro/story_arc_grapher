@@ -40,6 +40,7 @@ class Controller(QtCore.QObject):
         self.model = model
         self.view = view
         self.connect_signals()
+        self.edit_mode = self.view.editEntriesCheckBox.isChecked()
 
     def connect_signals(self):
         '''
@@ -56,10 +57,21 @@ class Controller(QtCore.QObject):
         self.view.moveBeatLeftBtn.clicked.connect(self.move_beat_left)
         self.view.moveBeatRightBtn.clicked.connect(self.move_beat_right)
         self.view.insertBeatBtn.clicked.connect(self.insert_beat_view)
-        self.view.editEntriesCheckBox.stateChanged.connect(self.refresh_tabWidget_edit_state)
+        self.view.editEntriesCheckBox.clicked.connect(self.check_if_beats_to_edit)
         self.view.applyEditsBtn.clicked.connect(self.apply_entry_edits)
         self.view.discardEditsBtn.clicked.connect(self.discard_entry_edits)
         pass
+    def check_if_beats_to_edit(self):
+        #if the last approved edit_mode is false
+        # equal to the checkbox AFTER it changed state,
+        if len(self.model.data["beats"]) == 0:
+                self.message_box(title="No Beats to Edit",
+                                 message="You must create a beat first. Press 'Add Beat to End' after making at least one character.",
+                                 icon="information")
+                self.view.editEntriesCheckBox.setChecked(False)
+        else:
+            self.refresh_tabWidget_edit_state()
+
 
     def apply_entry_edits(self):
         beat_num = self.view.plotSlider.value()
@@ -73,6 +85,7 @@ class Controller(QtCore.QObject):
         self.model.edit_beat(beat_num, name=nameText, synopsis=synopsisText)
         self.view.editEntriesCheckBox.setEnabled(True)
         self.view.editEntriesCheckBox.setChecked(False)
+        self.refresh_tabWidget_edit_state()
 
     def discard_entry_edits(self):
         for x in range(0, len(self.view.tabWidget.tabs)):
@@ -82,6 +95,7 @@ class Controller(QtCore.QObject):
         self.view.editEntriesCheckBox.setEnabled(True)
         self.view.editEntriesCheckBox.setChecked(False)
         self.view.nowNameLabel.setText(self.view.discardEditsBtn.temp_nameText)
+        self.refresh_tabWidget_edit_state()
 
     def refresh_tabWidget_edit_state(self):
         editable = self.view.editEntriesCheckBox.isChecked()

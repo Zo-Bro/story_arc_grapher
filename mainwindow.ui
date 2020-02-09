@@ -65,7 +65,7 @@
       <item>
        <widget class="QPushButton" name="newCharBtn">
         <property name="text">
-         <string>+ Character</string>
+         <string>Make New Character</string>
         </property>
        </widget>
       </item>
@@ -99,7 +99,7 @@
       <rect>
        <x>20</x>
        <y>30</y>
-       <width>651</width>
+       <width>541</width>
        <height>71</height>
       </rect>
      </property>
@@ -134,9 +134,9 @@
     <widget class="QWidget" name="verticalLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>690</x>
+       <x>570</x>
        <y>20</y>
-       <width>171</width>
+       <width>285</width>
        <height>91</height>
       </rect>
      </property>
@@ -147,7 +147,7 @@
       <item>
        <widget class="QPushButton" name="insertBeatBtn">
         <property name="text">
-         <string>Insert Before</string>
+         <string>Add After Active Beat</string>
         </property>
        </widget>
       </item>
@@ -163,14 +163,14 @@
         <item>
          <widget class="QPushButton" name="moveBeatLeftBtn">
           <property name="text">
-           <string>Swap &lt;&lt;&lt;</string>
+           <string>Move Active Beat &lt;&lt;&lt;</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="moveBeatRightBtn">
           <property name="text">
-           <string>Swap &gt;&gt;&gt;</string>
+           <string>Move Active Beat &gt;&gt;&gt;</string>
           </property>
          </widget>
         </item>
@@ -183,9 +183,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>530</y>
+      <y>580</y>
       <width>871</width>
-      <height>291</height>
+      <height>261</height>
      </rect>
     </property>
     <property name="title">
@@ -201,60 +201,6 @@
       </rect>
      </property>
      <layout class="QVBoxLayout" name="tabHolder"/>
-    </widget>
-    <widget class="QWidget" name="horizontalLayoutWidget_2">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>250</y>
-       <width>851</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QCheckBox" name="editEntriesCheckBox">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Edit Entries</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="applyEditsBtn">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="autoFillBackground">
-         <bool>true</bool>
-        </property>
-        <property name="text">
-         <string>Apply Edits</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="discardEditsBtn">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Discard Edits</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_4">
@@ -316,7 +262,7 @@
       <x>10</x>
       <y>200</y>
       <width>871</width>
-      <height>331</height>
+      <height>381</height>
      </rect>
     </property>
     <property name="font">
@@ -337,7 +283,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>20</y>
+       <y>80</y>
        <width>851</width>
        <height>291</height>
       </rect>
@@ -358,10 +304,14 @@
           <weight>75</weight>
           <italic>false</italic>
           <bold>true</bold>
+          <underline>true</underline>
          </font>
         </property>
         <property name="text">
-         <string>CURRENT BEAT</string>
+         <string>ACTIVE BEAT</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -377,6 +327,9 @@
         <property name="text">
          <string>PREVIOUSLY</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
       <item row="0" column="2">
@@ -390,6 +343,9 @@
         </property>
         <property name="text">
          <string>NEXT</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -461,6 +417,61 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>30</y>
+       <width>431</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="editEntriesCheckBox">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>EDIT MODE</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="applyEditsBtn">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Apply Edits</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="discardEditsBtn">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Discard Edits</string>
         </property>
        </widget>
       </item>
